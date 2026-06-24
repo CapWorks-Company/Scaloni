@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scaloni — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── CONFIG : change ici ton Client ID ─────────── */
+/* Voir plus bas dans le JS : const CLIENT_ID = ... */
+
+:root{
+  --bg:#0a0b0f; --s1:#111318; --s2:#181b24; --s3:#1f2330;
+  --acc:#7c5cfc; --acc2:#5865f2; --acc3:#a78bfa;
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
+  --border:#252836; --border2:#2d3348;
+  --green:#10b981; --red:#ef4444; --gold:#f59e0b;
+  --r:12px; --rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .3s}
+.spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-top{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-text{font-size:1.1rem;font-weight:800;letter-spacing:-.02em}
+.profile-box{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px}
+.avatar-wrap{position:relative;flex-shrink:0}
+.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;display:block}
+.avatar-placeholder{width:38px;height:38px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff}
+.online-dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--s2)}
+.profile-name{font-size:.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-tag{font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.sidebar-nav{padding:12px 8px;flex:1}
+.nav-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:0 8px;margin-bottom:4px}
+.nav-section{margin-bottom:16px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:var(--rs);font-size:.875rem;color:var(--text2);background:none;border:none;text-align:left;transition:all .15s}
+.nav-btn:hover{background:var(--s2);color:var(--text)}
+.nav-btn.active{background:rgba(124,92,252,.15);color:var(--acc)}
+.nav-btn .icon{font-size:1rem;width:20px;text-align:center}
+.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border)}
+
+/* MAIN */
+.main{padding:28px 32px;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+.page-header p{color:var(--text2);font-size:.875rem;margin-top:4px}
+
+/* LANDING */
+#page-landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(124,92,252,.15),transparent 70%)}
+#page-landing h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.04em;margin-bottom:1rem}
+#page-landing h1 span{color:var(--acc)}
+#page-landing .sub{color:var(--text2);font-size:1.05rem;max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+.btn-discord-login{display:inline-flex;align-items:center;gap:12px;background:var(--acc2);color:#fff;border:none;padding:14px 28px;border-radius:var(--r);font-size:1rem;font-weight:600;transition:all .2s;text-decoration:none}
+.btn-discord-login:hover{background:#4752c4;transform:translateY(-2px);box-shadow:0 8px 24px rgba(88,101,242,.4)}
+.btn-discord-login svg{width:24px;height:24px;flex-shrink:0}
+.error-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:var(--rs);padding:12px 16px;color:var(--red);font-size:.875rem;margin-top:20px;max-width:400px;display:none}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.card-title{font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+
+/* SERVERS GRID */
+.servers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px}
+.server-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.server-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.server-card.bot-on{border-color:rgba(16,185,129,.3)}
+.server-card.bot-on:hover{border-color:rgba(16,185,129,.6)}
+.server-icon{width:60px;height:60px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;overflow:hidden}
+.server-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.server-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.server-members{font-size:.72rem;color:var(--text3)}
+.server-badge{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:99px}
+.badge-on{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge-add{background:var(--s2);color:var(--text3);border:1px solid var(--border2)}
+.server-card:hover .badge-add{background:rgba(124,92,252,.1);color:var(--acc);border-color:rgba(124,92,252,.3)}
+
+/* SERVER HEADER */
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text3);margin-bottom:20px}
+.breadcrumb button{background:none;border:none;color:var(--text3);font-size:.8rem;display:flex;align-items:center;gap:4px;padding:0}
+.breadcrumb button:hover{color:var(--text)}
+.server-header-card{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px}
+.server-header-icon{width:52px;height:52px;border-radius:50%;flex-shrink:0;font-size:22px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.server-header-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.server-header-actions{margin-left:auto;display:flex;gap:8px}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);font-size:.8rem;font-weight:600;border:none;transition:all .15s}
+.btn-primary{background:var(--acc);color:#fff}
+.btn-primary:hover{background:#6b4ee6}
+.btn-success{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--s3);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-invite{display:inline-flex;align-items:center;gap:8px;background:var(--acc2);color:#fff;border:none;padding:12px 22px;border-radius:var(--r);font-size:.9rem;font-weight:600}
+.btn-invite:hover{background:#4752c4}
+
+/* NO BOT */
+.no-bot-box{text-align:center;padding:48px 24px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r)}
+.no-bot-box .big-icon{font-size:3rem;margin-bottom:16px}
+.no-bot-box h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.no-bot-box p{color:var(--text2);font-size:.875rem;margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;text-align:center}
+.stat-card .num{font-size:1.6rem;font-weight:800;color:var(--acc)}
+.stat-card .lbl{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:var(--rs);font-size:.875rem;transition:border-color .15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--acc)}
+.form-group textarea{min-height:72px;resize:vertical;line-height:1.5}
+.form-hint{font-size:.72rem;color:var(--text3);margin-top:4px}
+code{font-family:'JetBrains Mono',monospace;font-size:.8em;background:var(--s3);padding:1px 6px;border-radius:4px}
+
+/* TOGGLES */
+.toggle-list{display:flex;flex-direction:column}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.t-name{font-size:.85rem;font-weight:500}
+.t-desc{font-size:.72rem;color:var(--text3);margin-top:2px}
+.switch{width:38px;height:22px;border-radius:99px;position:relative;flex-shrink:0;transition:background .2s;border:none}
+.switch.on{background:var(--acc)}
+.switch.off{background:var(--border2)}
+.switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left .2s}
+.switch.on::after{left:19px}
+.switch.off::after{left:3px}
+
+/* SAVE BAR */
+.save-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-top:16px}
+.save-bar p{font-size:.8rem;color:var(--text2)}
+.save-ok{font-size:.8rem;color:var(--green);display:none;align-items:center;gap:5px}
+.save-ok.show{display:flex}
+
+/* SHOP / MONITORS */
+.item-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.item-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);font-size:.82rem}
+.item-row .em{font-size:1.2rem;flex-shrink:0}
+.item-info{flex:1;overflow:hidden}
+.item-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-info span{font-size:.72rem;color:var(--text3)}
+.item-price{font-size:.8rem;font-weight:700;color:var(--gold);white-space:nowrap}
+.pb{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0}
+.pb-twitch{background:rgba(145,70,255,.2);color:#c084fc}
+.pb-youtube{background:rgba(255,0,0,.15);color:#f87171}
+.pb-twitter{background:rgba(29,161,242,.15);color:#7dd3fc}
+.pb-instagram{background:rgba(225,48,108,.15);color:#f9a8d4}
+.pb-tiktok{background:rgba(255,255,255,.1);color:var(--text)}
+.pb-reddit{background:rgba(255,69,0,.15);color:#fdba74}
+
+/* PROFILE PAGE */
+.profile-big{display:flex;align-items:center;gap:20px;padding:20px 24px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px}
+.avatar-big{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--border2)}
+.avatar-big-placeholder{width:72px;height:72px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;padding:3px 9px;border-radius:99px;background:var(--s2);border:1px solid var(--border2);color:var(--text2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:100;padding:11px 16px;border-radius:var(--rs);font-size:.875rem;font-weight:500;display:none;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:320px}
+.toast.show{display:flex}
+.toast.ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.toast.err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+
+/* CONFIG STORAGE NOTICE */
+.cfg-notice{background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.2);border-radius:var(--rs);padding:9px 13px;font-size:.78rem;color:var(--acc3);margin-bottom:16px}
+
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.main{padding:16px}.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div></div>
+
+<!-- ══════════════ PAGE LANDING ══════════════════════════ -->
+<div id="page-landing" style="display:none">
+  <h1>⚡ Scaloni<br><span>Dashboard</span></h1>
+  <p class="sub">Connecte-toi avec Discord pour voir tous tes serveurs, ajouter le bot et tout configurer.</p>
+  <a id="login-btn" href="#" class="btn-discord-login">
+    <svg viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.5 58.5 0 0045.7.9a40 40 0 00-1.8 3.6 54 54 0 00-16.2 0A37 37 0 0025.9.9 58.6 58.6 0 0011.4 5C1.6 19.4-1 33.5.3 47.4a58.9 58.9 0 0018 9.1 44.3 44.3 0 003.9-6.3 38.3 38.3 0 01-6.1-3 31.6 31.6 0 001.5-1.2 41.9 41.9 0 0036 0l1.5 1.2a38.4 38.4 0 01-6.2 3 44.2 44.2 0 003.9 6.3 58.7 58.7 0 0018-9.1c1.5-15.6-2.6-29.5-10.7-41.5zM23.7 38.9c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.4 3.2 6.4 7.2-2.9 7.2-6.4 7.2zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.4 3.2 6.4 7.2-2.8 7.2-6.4 7.2z" fill="#fff"/></svg>
+    Connexion avec Discord
+  </a>
+  <div class="error-box" id="error-box"></div>
+  <p style="margin-top:16px;font-size:.78rem;color:var(--text3)">Seuls les serveurs où tu es admin ou propriétaire sont visibles</p>
+</div>
+
+<!-- ══════════════ APP CONNECTÉ ══════════════════════════ -->
+<div id="app" style="display:none">
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="logo">
+          <div class="logo-icon">⚡</div>
+          <span class="logo-text">Scaloni</span>
+        </div>
+        <div class="profile-box">
+          <div class="avatar-wrap">
+            <div id="sb-avatar-wrap"></div>
+            <div class="online-dot"></div>
+          </div>
+          <div style="overflow:hidden;flex:1">
+            <div class="profile-name" id="sb-name">—</div>
+            <div class="profile-tag" id="sb-tag">—</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-label">Dashboard</div>
+          <button class="nav-btn active" id="nav-servers" onclick="goPage('servers',this)">
+            <span class="icon">🏠</span> Mes serveurs
+          </button>
+          <button class="nav-btn" id="nav-profile" onclick="goPage('profile',this)">
+            <span class="icon">👤</span> Mon profil
+          </button>
+        </div>
+        <div class="nav-section" id="guild-nav" style="display:none">
+          <div class="nav-label" id="guild-nav-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Serveur</div>
+          <button class="nav-btn" id="nav-overview" onclick="goPage('overview',this)"><span class="icon">📊</span> Vue d'ensemble</button>
+          <button class="nav-btn" id="nav-welcome"  onclick="goPage('welcome',this)"><span class="icon">👋</span> Bienvenue & Départ</button>
+          <button class="nav-btn" id="nav-automod"  onclick="goPage('automod',this)"><span class="icon">🛡️</span> AutoMod</button>
+          <button class="nav-btn" id="nav-economy"  onclick="goPage('economy',this)"><span class="icon">💰</span> Économie & Boutique</button>
+          <button class="nav-btn" id="nav-social"   onclick="goPage('social',this)"><span class="icon">📡</span> Réseaux Sociaux</button>
+        </div>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-btn" onclick="logout()" style="color:var(--red)">
+          <span class="icon">🚪</span> Déconnexion
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <!-- SERVERS -->
+      <div class="page active" id="page-servers">
+        <div class="page-header">
+          <h1>Mes serveurs</h1>
+          <p>Clique sur un serveur pour le configurer. Si Scaloni est absent, clique pour l'inviter.</p>
+        </div>
+        <div class="servers-grid" id="servers-grid"></div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="page" id="page-profile">
+        <div class="page-header"><h1>Mon profil</h1><p>Ton compte Discord connecté</p></div>
+        <div class="profile-big">
+          <div id="pf-avatar-wrap"></div>
+          <div>
+            <h2 id="pf-name" style="font-size:1.2rem;font-weight:700">—</h2>
+            <div id="pf-disc" style="font-size:.82rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px">—</div>
+            <div class="tag-row">
+              <span class="tag">🆔 <span id="pf-id">—</span></span>
+              <span class="tag" id="pf-guilds-tag">—</span>
+              <span class="tag" style="background:rgba(124,92,252,.1);color:var(--acc3);border-color:rgba(124,92,252,.3)">⚡ Scaloni connecté</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="max-width:500px">
+          <div class="card-title">⚙️ Session</div>
+          <p style="font-size:.875rem;color:var(--text2);line-height:1.6">Ta session Discord est stockée localement dans le navigateur. Elle expire automatiquement après 7 jours ou lors de la déconnexion.</p>
+          <div style="margin-top:12px">
+            <button class="btn btn-danger" onclick="logout()">🚪 Se déconnecter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NO BOT -->
+      <div class="page" id="page-nobot">
+        <div class="breadcrumb">
+          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
+          <span>/</span><span id="bc-nobot" style="color:var(--text)">Serveur</span>
+        </div>
+        <div class="server-header-card">
+          <div class="server-header-icon" id="nb-icon"></div>
+          <div><h2 id="nb-name" style="font-size:1rem;font-weight:700">—</h2><p id="nb-id" style="font-size:.8rem;color:var(--text3)">—</p></div>
+        </div>
+        <div class="no-bot-box">
+          <div class="big-icon">🤖</div>
+          <h3>Scaloni n'est pas sur ce serveur</h3>
+          <p>Ajoute le bot pour débloquer la modération avancée, l'économie, les jeux, la détection de lives et bien plus.</p>
+          <button class="btn-invite" id="add-bot-btn">➕ Ajouter Scaloni à ce serveur</button>
+        </div>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div class="page" id="page-overview">
+        <div class="breadcrumb">
+          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
+          <span>/</span><span id="bc-ov" style="color:var(--text)">Serveur</span><span>/</span><span>Vue d'ensemble</span>
+        </div>
+        <div class="server-header-card">
+          <div class="server-header-icon" id="ov-icon"></div>
+          <div>
+            <h2 id="ov-name" style="font-size:1rem;font-weight:700">—</h2>
+            <p id="ov-id" style="font-size:.8rem;color:var(--text3)">—</p>
+          </div>
+          <div class="server-header-actions">
+            <span class="btn btn-success">✅ Scaloni actif</span>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="num" id="ov-members">—</div><div class="lbl">Membres</div></div>
+          <div class="stat-card"><div class="num" id="ov-items">—</div><div class="lbl">Articles boutique</div></div>
+          <div class="stat-card"><div class="num" id="ov-monitors">—</div><div class="lbl">Surveillances</div></div>
+          <div class="stat-card"><div class="num" id="ov-prot">—</div><div class="lbl">Protections actives</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🧭 Accès rapide</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="goPage('welcome', document.getElementById('nav-welcome'))">👋 Bienvenue</button>
+            <button class="btn btn-ghost" onclick="goPage('automod', document.getElementById('nav-automod'))">🛡️ AutoMod</button>
+            <button class="btn btn-ghost" onclick="goPage('economy', document.getElementById('nav-economy'))">💰 Économie</button>
+            <button class="btn btn-ghost" onclick="goPage('social',  document.getElementById('nav-social'))">📡 Réseaux Sociaux</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WELCOME -->
+      <div class="page" id="page-welcome">
+        <div class="breadcrumb">
+          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
+          <span>/</span><span id="bc-wc" style="color:var(--text)">Serveur</span><span>/</span><span>Bienvenue & Départ</span>
+        </div>
+        <div class="page-header"><h1>👋 Bienvenue & Départ</h1><p>Messages envoyés quand un membre rejoint ou quitte le serveur</p></div>
+        <div class="cfg-notice">💡 La config est sauvegardée dans le navigateur et lue par le bot via <code>scaloni_config.json</code>. Après avoir sauvegardé ici, relance le bot.</div>
+        <div class="form-grid">
+          <div class="card">
+            <div class="card-title">🟢 Message de bienvenue</div>
+            <div class="form-group">
+              <label>ID du salon de bienvenue</label>
+              <input type="text" id="wc-ch" placeholder="Clic droit salon → Copier l'identifiant">
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea id="wc-msg" placeholder="Bienvenue {user} sur {server} ! 🎉 Tu es le {count}ème membre."></textarea>
+              <div class="form-hint">Variables : <code>{user}</code> mention · <code>{username}</code> pseudo · <code>{server}</code> nom · <code>{count}</code> nb membres</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔴 Message de départ</div>
+            <div class="form-group">
+              <label>ID du salon de départ</label>
+              <input type="text" id="lv-ch" placeholder="Clic droit salon → Copier l'identifiant">
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea id="lv-msg" placeholder="👋 {username} a quitté {server}."></textarea>
+              <div class="form-hint">Variables : <code>{user}</code> · <code>{username}</code> · <code>{server}</code></div>
+            </div>
+          </div>
+        </div>
+        <div class="save-bar">
+          <p>Enregistre puis copie le fichier <code>scaloni_config.json</code> généré dans le dossier du bot.</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="save-ok" id="ok-welcome">✅ Sauvegardé !</span>
+            <button class="btn btn-primary" onclick="save('welcome')">Sauvegarder</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTOMOD -->
+      <div class="page" id="page-automod">
+        <div class="breadcrumb">
+          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
+          <span>/</span><span id="bc-am" style="color:var(--text)">Serveur</span><span>/</span><span>AutoMod</span>
+        </div>
+        <div class="page-header"><h1>🛡️ AutoMod</h1><p>Modération automatique du serveur</p></div>
+        <div class="form-grid">
+          <div class="card">
+            <div class="card-title">🔒 Protections</div>
+            <div class="toggle-list">
+              <div class="toggle-row"><div><div class="t-name">🔗 Anti-Liens</div><div class="t-desc">Supprime les messages avec des URLs</div></div><button class="switch off" id="sw-anti_links" onclick="toggleSw(this,'anti_links')"></button></div>
+              <div class="toggle-row"><div><div class="t-name">📨 Anti-Invitations</div><div class="t-desc">Bloque les invitations Discord</div></div><button class="switch off" id="sw-anti_invites" onclick="toggleSw(this,'anti_invites')"></button></div>
+              <div class="toggle-row"><div><div class="t-name">🚫 Anti-Spam</div><div class="t-desc">Limite les envois rapides (5 msg/5s)</div></div><button class="switch off" id="sw-anti_spam" onclick="toggleSw(this,'anti_spam')"></button></div>
+              <div class="toggle-row"><div><div class="t-name">🔠 Anti-Majuscules</div><div class="t-desc">Bloque les messages &gt;70% caps</div></div><button class="switch off" id="sw-anti_caps" onclick="toggleSw(this,'anti_caps')"></button></div>
+              <div class="toggle-row"><div><div class="t-name">🔔 Anti-Mass-Mention</div><div class="t-desc">Bloque les mentions massives (5+)</div></div><button class="switch off" id="sw-anti_mention" onclick="toggleSw(this,'anti_mention')"></button></div>
+              <div class="toggle-row"><div><div class="t-name">🤐 Anti-Gros-Mots</div><div class="t-desc">Filtre la liste noire de mots</div></div><button class="switch off" id="sw-anti_badwords" onclick="toggleSw(this,'anti_badwords')"></button></div>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-title">🚫 Mots interdits</div>
+              <div class="form-group">
+                <label>Séparés par des virgules</label>
+                <textarea id="am-bad_words" placeholder="insulte1, insulte2, ..."></textarea>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">✅ Domaines toujours autorisés</div>
+              <div class="form-group">
+                <label>Séparés par des virgules</label>
+                <textarea id="am-whitelist" placeholder="youtube.com, twitch.tv, imgur.com"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="save-bar">
+          <p>Les toggles et listes sont sauvegardés ensemble.</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="save-ok" id="ok-automod">✅ Sauvegardé !</span>
+            <button class="btn btn-primary" onclick="save('automod')">Sauvegarder</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ECONOMY -->
+      <div class="page" id="page-economy">
+        <div class="breadcrumb">
+          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
+          <span>/</span><span id="bc-ec" style="color:var(--text)">Serveur</span><span>/</span><span>Économie & Boutique</span>
+        </div>
+        <div class="page-header"><h1>💰 Économie & Boutique</h1><p>Monnaie personnalisée et articles</p></div>
+        <div class="form-grid">
+          <div class="card">
+            <div class="card-title">🪙 Monnaie</div>
+            <div class="form-group"><label>Nom de la monnaie</label><input type="text" id="ec-name" placeholder="Scaloni Coins"></div>
+            <div class="form-group"><label>Emoji</label><input type="text" id="ec-emoji" placeholder="🪙" maxlength="5"></div>
+            <div class="form-group"><label>ID du salon annonces level-up</label><input type="text" id="ec-lvlch" placeholder="(optionnel)"></div>
+            <div class="save-bar" style="margin-top:0">
+              <span class="save-ok" id="ok-economy">✅ Sauvegardé !</span>
+              <button class="btn btn-primary" onclick="save('economy')">Sauvegarder</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">🛒 Boutique</div>
+            <div class="item-list" id="shop-list"><div style="font-size:.82rem;color:var(--text3)">Aucun article.</div></div>
+            <div style="border-top:1px solid var(--border);padding-top:14px">
+              <div class="form-group"><label>Nom</label><input type="text" id="si-name" placeholder="Rôle VIP"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Prix</label><input type="number" id="si-price" placeholder="500" min="1"></div>
+                <div class="form-group"><label>Emoji</label><input type="text" id="si-emoji" placeholder="🎁" maxlength="5"></div>
+              </div>
+              <div class="form-group"><label>Description</label><input type="text" id="si-desc" placeholder="Description courte"></div>
+              <button class="btn btn-primary" onclick="addItem()">➕ Ajouter l'article</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOCIAL -->
+      <div class="page" id="page-social">
+        <div class="breadcrumb">
+          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
+          <span>/</span><span id="bc-sc" style="color:var(--text)">Serveur</span><span>/</span><span>Réseaux Sociaux</span>
+        </div>
+        <div class="page-header"><h1>📡 Réseaux Sociaux</h1><p>Notifications automatiques quand un créateur est en live ou poste</p></div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title">📋 Surveillances actives</div>
+          <div class="item-list" id="monitor-list"><div style="font-size:.82rem;color:var(--text3)">Aucune surveillance.</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">➕ Ajouter une surveillance</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div class="form-group"><label>Plateforme</label><select id="sm-plat"><option value="twitch">🟣 Twitch</option><option value="youtube">🔴 YouTube</option><option value="twitter">🐦 Twitter/X</option><option value="instagram">📸 Instagram</option><option value="tiktok">🎵 TikTok</option><option value="reddit">🤖 Reddit</option></select></div>
+            <div class="form-group"><label>Nom d'utilisateur</label><input type="text" id="sm-user" placeholder="ex: xqc"></div>
+            <div class="form-group"><label>ID du salon Discord</label><input type="text" id="sm-ch" placeholder="ex: 123456789..."></div>
+          </div>
+          <div class="form-group"><label>Message custom (optionnel)</label><input type="text" id="sm-msg" placeholder="{name} est en live ! {title} — {url}"><div class="form-hint">Variables : <code>{name}</code> <code>{title}</code> <code>{url}</code> <code>{game}</code></div></div>
+          <button class="btn btn-primary" onclick="addMonitor()">➕ Ajouter</button>
+        </div>
+        <div class="save-bar" style="margin-top:16px">
+          <p>La liste des surveillances est sauvegardée localement.</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="save-ok" id="ok-social">✅ Sauvegardé !</span>
+            <button class="btn btn-primary" onclick="save('social')">Sauvegarder tout</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+const CLIENT_ID = "1454832858865733692";
+
+// ───────────────────────────────────────────
+// URL de redirection : doit correspondre
+// EXACTEMENT à ce que tu as mis dans le
+// portail Discord → OAuth2 → Redirects
+// Exemple : file:///C:/Users/.../scaloni_site.html
+// OU       : http://localhost:8080 si tu utilises
+//            un serveur local (Live Server PyCharm)
+// ───────────────────────────────────────────
+const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+const DISCORD_API  = "https://discord.com/api/v10";
+const STORAGE_KEY  = "scaloni_session";
+const CONFIG_KEY   = "scaloni_config";
+
+// ── STATE ─────────────────────────────────
+let USER    = null;
+let GUILDS  = [];
+let CURRENT = null;  // guild courante
+let BOT_GUILDS = {}; // {guildId: true}
+let CFG     = {};    // config locale
+
+// ── INIT ──────────────────────────────────
+window.addEventListener('load', async () => {
+  // 1. Récupérer le token dans l'URL (après redirect OAuth2)
+  const hash   = new URLSearchParams(window.location.hash.slice(1));
+  const search = new URLSearchParams(window.location.search);
+  const token  = hash.get('access_token') || search.get('access_token');
+  const error  = hash.get('error')        || search.get('error');
+
+  if (error) {
+    showLanding(error === 'access_denied' ? 'Connexion annulée.' : 'Erreur : ' + error);
+    return done();
+  }
+
+  if (token) {
+    // Nettoie l'URL
+    window.history.replaceState({}, '', window.location.pathname);
+    const expIn = parseInt(hash.get('expires_in') || '604800');
+    saveSession({ access_token: token, expires: Date.now() + expIn * 1000 });
+  }
+
+  // 2. Vérifier session existante
+  const session = loadSession();
+  if (!session) { showLanding(); return done(); }
+  if (Date.now() > session.expires) { clearSession(); showLanding('Session expirée, reconnecte-toi.'); return done(); }
+
+  // 3. Charger l'utilisateur et ses guildes
+  try {
+    await loadUser(session.access_token);
+    showApp();
+  } catch (e) {
+    clearSession();
+    showLanding('Session invalide, reconnecte-toi.');
+  }
+  done();
+});
+
+function done() {
+  const ld = document.getElementById('loading');
+  ld.style.opacity = '0';
+  setTimeout(() => ld.style.display = 'none', 300);
+}
+
+// ── AUTH ──────────────────────────────────
+function buildLoginURL() {
+  const params = new URLSearchParams({
+    client_id:     CLIENT_ID,
+    redirect_uri:  REDIRECT_URI,
+    response_type: 'token',
+    scope:         'identify guilds',
+  });
+  return 'https://discord.com/oauth2/authorize?' + params.toString();
+}
+
+document.getElementById('login-btn').href = '#';
+document.getElementById('login-btn').addEventListener('click', e => {
+  e.preventDefault();
+  if (CLIENT_ID === "TON_CLIENT_ID_ICI") {
+    showError("⚠️ Remplace TON_CLIENT_ID_ICI par ton vrai Client ID dans scaloni_site.html (ligne ~420)");
+    return;
+  }
+  window.location.href = buildLoginURL();
+});
+
+async function loadUser(token) {
+  const [userData, guildsData] = await Promise.all([
+    discordFetch('/users/@me', token),
+    discordFetch('/users/@me/guilds', token),
+  ]);
+  USER   = userData;
+  GUILDS = guildsData.filter(g => (parseInt(g.permissions) & 0x8) || g.owner);
+
+  // Charge config locale
+  const raw = localStorage.getItem(CONFIG_KEY);
+  CFG = raw ? JSON.parse(raw) : {};
+}
+
+async function discordFetch(path, token) {
+  const r = await fetch(DISCORD_API + path, {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  if (!r.ok) throw new Error('Discord API ' + r.status);
+  return r.json();
+}
+
+function logout() {
+  clearSession();
+  USER = null; GUILDS = []; CURRENT = null;
+  document.getElementById('app').style.display = 'none';
+  showLanding();
+}
+
+// ── SESSION ───────────────────────────────
+function saveSession(s)  { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+function loadSession()   { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; } }
+function clearSession()  { localStorage.removeItem(STORAGE_KEY); }
+
+// ── SHOW ──────────────────────────────────
+function showLanding(err) {
+  document.getElementById('page-landing').style.display = 'flex';
+  if (err) showError(err);
+}
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = msg; el.style.display = 'block';
+}
+function showApp() {
+  document.getElementById('page-landing').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  setupSidebar();
+  renderServers();
+}
+
+// ── SIDEBAR ───────────────────────────────
+function setupSidebar() {
+  document.getElementById('sb-name').textContent = USER.global_name || USER.username;
+  document.getElementById('sb-tag').textContent  = '@' + USER.username;
+
+  const avW = document.getElementById('sb-avatar-wrap');
+  avW.innerHTML = USER.avatar
+    ? `<img class="avatar" src="https://cdn.discordapp.com/avatars/${USER.id}/${USER.avatar}.png?size=64" alt="">`
+    : `<div class="avatar-placeholder">${(USER.global_name || USER.username)[0].toUpperCase()}</div>`;
+
+  document.getElementById('pf-name').textContent = USER.global_name || USER.username;
+  document.getElementById('pf-disc').textContent = '@' + USER.username;
+  document.getElementById('pf-id').textContent   = USER.id;
+  document.getElementById('pf-guilds-tag').textContent = `🏠 ${GUILDS.length} serveur(s) admin`;
+
+  const pfW = document.getElementById('pf-avatar-wrap');
+  pfW.innerHTML = USER.avatar
+    ? `<img class="avatar-big" src="https://cdn.discordapp.com/avatars/${USER.id}/${USER.avatar}.png?size=128" alt="">`
+    : `<div class="avatar-big-placeholder">${(USER.global_name || USER.username)[0].toUpperCase()}</div>`;
+}
+
+// ── PAGES ─────────────────────────────────
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const p = document.getElementById('page-' + name);
+  if (p) p.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── SERVERS ───────────────────────────────
+function renderServers() {
+  const grid = document.getElementById('servers-grid');
+  if (!GUILDS.length) {
+    grid.innerHTML = '<p style="color:var(--text3);font-size:.875rem">Aucun serveur où tu es admin.</p>';
+    return;
+  }
+  grid.innerHTML = GUILDS.map(g => {
+    // On vérifie si le bot est présent via la config locale
+    const hasBot = !!(CFG[g.id] && CFG[g.id].__bot_present);
+    const iconHTML = g.icon
+      ? `<img src="https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=64" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+      : `<span>${g.name[0].toUpperCase()}</span>`;
+    return `
+      <div class="server-card ${hasBot ? 'bot-on' : ''}" onclick="openServer('${g.id}')">
+        <div class="server-icon" style="background:${gColor(g.id)}">${iconHTML}</div>
+        <div class="server-name" title="${esc(g.name)}">${esc(g.name)}</div>
+        <div class="server-members">Serveur Discord</div>
+        <div class="server-badge ${hasBot ? 'badge-on' : 'badge-add'}">
+          ${hasBot ? '✅ Scaloni actif' : '➕ Ajouter Scaloni'}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openServer(gid) {
+  CURRENT = GUILDS.find(g => g.id === gid);
+  if (!CURRENT) return;
+
+  // Affiche la nav serveur
+  document.getElementById('guild-nav').style.display = 'block';
+  document.getElementById('guild-nav-name').textContent = CURRENT.name;
+
+  // Breadcrumbs
+  ['nobot','ov','wc','am','ec','sc'].forEach(id => {
+    const el = document.getElementById('bc-' + id);
+    if (el) el.textContent = CURRENT.name;
+  });
+
+  const hasBot = !!(CFG[gid] && CFG[gid].__bot_present);
+
+  if (!hasBot) {
+    // Pas de bot → page d'invitation
+    setGuildHeader('nb-icon', CURRENT);
+    document.getElementById('nb-name').textContent = CURRENT.name;
+    document.getElementById('nb-id').textContent   = 'ID : ' + CURRENT.id;
+    document.getElementById('add-bot-btn').onclick = () => {
+      const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&permissions=8&scope=bot&guild_id=${CURRENT.id}`;
+      window.open(url, '_blank');
+      // Marquer comme actif localement après invitation
+      setTimeout(() => {
+        if (!CFG[CURRENT.id]) CFG[CURRENT.id] = {};
+        CFG[CURRENT.id].__bot_present = true;
+        saveCFG();
+        renderServers();
+        toast('Bot invité ! Relance la page après avoir accepté.', 'ok');
+      }, 2000);
+    };
+    goPage('nobot', null);
+  } else {
+    // Bot présent → vue d'ensemble
+    setGuildHeader('ov-icon', CURRENT);
+    document.getElementById('ov-name').textContent = CURRENT.name;
+    document.getElementById('ov-id').textContent   = 'ID : ' + CURRENT.id;
+    loadConfigToForms(gid);
+    updateOverviewStats();
+    goPage('overview', document.getElementById('nav-overview'));
+  }
+}
+
+function markBotPresent() {
+  // Appelé manuellement depuis la page "pas de bot" si l'utilisateur
+  // a déjà ajouté le bot et veut accéder à la config
+  if (!CURRENT) return;
+  if (!CFG[CURRENT.id]) CFG[CURRENT.id] = {};
+  CFG[CURRENT.id].__bot_present = true;
+  saveCFG();
+  renderServers();
+  openServer(CURRENT.id);
+}
+
+function setGuildHeader(elId, guild) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (guild.icon) {
+    el.innerHTML = `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=64" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    el.style.background = 'transparent';
+  } else {
+    el.textContent = guild.name[0].toUpperCase();
+    el.style.background = gColor(guild.id);
+  }
+}
+
+function updateOverviewStats() {
+  if (!CURRENT) return;
+  const c = CFG[CURRENT.id] || {};
+  const items    = (c.shop_items || []).length;
+  const monitors = (c.streamers  || []).length;
+  const prot     = ['anti_links','anti_invites','anti_spam','anti_caps','anti_mention','anti_badwords']
+                   .filter(k => c[k]).length;
+  document.getElementById('ov-members').textContent  = '—';
+  document.getElementById('ov-items').textContent    = items;
+  document.getElementById('ov-monitors').textContent = monitors;
+  document.getElementById('ov-prot').textContent     = prot + '/6';
+}
+
+// ── CONFIG ────────────────────────────────
+function gCFG() {
+  if (!CURRENT) return {};
+  if (!CFG[CURRENT.id]) CFG[CURRENT.id] = {};
+  return CFG[CURRENT.id];
+}
+
+function saveCFG() {
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(CFG));
+  // Génère aussi un fichier téléchargeable scaloni_config.json
+  exportConfig();
+}
+
+function exportConfig() {
+  // Crée un Blob téléchargeable — le bot le lit via scaloni_config.json
+  const blob = new Blob([JSON.stringify(CFG, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const link = document.getElementById('dl-config');
+  if (link) { link.href = url; link.download = 'scaloni_config.json'; }
+}
+
+function loadConfigToForms(gid) {
+  const c = CFG[gid] || {};
+  // Welcome
+  v('wc-ch',  c.welcome_channel || '');
+  v('wc-msg', c.welcome_msg     || '');
+  v('lv-ch',  c.leave_channel   || '');
+  v('lv-msg', c.leave_msg       || '');
+  // AutoMod toggles
+  ['anti_links','anti_invites','anti_spam','anti_caps','anti_mention','anti_badwords'].forEach(k => {
+    const sw = document.getElementById('sw-' + k);
+    if (!sw) return;
+    sw.classList.toggle('on',  !!c[k]);
+    sw.classList.toggle('off', !c[k]);
+  });
+  v('am-bad_words', c.bad_words   || '');
+  v('am-whitelist', c.whitelist   || '');
+  // Economy
+  v('ec-name',  c.currency_name  || 'Scaloni Coins');
+  v('ec-emoji', c.currency_emoji || '🪙');
+  v('ec-lvlch', c.lvlup_channel  || '');
+  // Shop
+  renderShop(c.shop_items || []);
+  // Social
+  renderMonitors(c.streamers || []);
+}
+
+function save(section) {
+  const c = gCFG();
+  if (section === 'welcome') {
+    c.welcome_channel = g('wc-ch');
+    c.welcome_msg     = g('wc-msg');
+    c.leave_channel   = g('lv-ch');
+    c.leave_msg       = g('lv-msg');
+  } else if (section === 'automod') {
+    ['anti_links','anti_invites','anti_spam','anti_caps','anti_mention','anti_badwords'].forEach(k => {
+      const sw = document.getElementById('sw-' + k);
+      c[k] = sw ? sw.classList.contains('on') : false;
+    });
+    c.bad_words  = g('am-bad_words');
+    c.whitelist  = g('am-whitelist');
+  } else if (section === 'economy') {
+    c.currency_name  = g('ec-name');
+    c.currency_emoji = g('ec-emoji');
+    c.lvlup_channel  = g('ec-lvlch');
+  } else if (section === 'social') {
+    // Already saved via addMonitor/removeMonitor
+  }
+  saveCFG();
+  updateOverviewStats();
+  const ok = document.getElementById('ok-' + section);
+  if (ok) { ok.classList.add('show'); setTimeout(() => ok.classList.remove('show'), 2500); }
+  toast('Configuration sauvegardée ! Copie scaloni_config.json dans le dossier du bot.', 'ok');
+  // Déclenche le téléchargement automatique
+  triggerDownload();
+}
+
+function triggerDownload() {
+  const blob = new Blob([JSON.stringify(CFG, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'scaloni_config.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function toggleSw(sw, key) {
+  sw.classList.toggle('on');
+  sw.classList.toggle('off');
+  const c = gCFG();
+  c[key] = sw.classList.contains('on');
+  saveCFG();
+  updateOverviewStats();
+}
+
+// ── SHOP ──────────────────────────────────
+function renderShop(items) {
+  const el = document.getElementById('shop-list');
+  const emoji = (gCFG().currency_emoji || '🪙');
+  if (!items.length) { el.innerHTML = '<div style="font-size:.82rem;color:var(--text3)">Aucun article.</div>'; return; }
+  el.innerHTML = items.map((item, i) => `
+    <div class="item-row">
+      <div class="em">${esc(item.emoji || '🎁')}</div>
+      <div class="item-info">
+        <strong>${esc(item.name)}</strong>
+        <span>${esc(item.description || '')}</span>
+      </div>
+      <div class="item-price">${item.price} ${esc(emoji)}</div>
+      <button class="btn btn-danger" style="padding:4px 10px;font-size:.75rem" onclick="removeItem(${i})">✕</button>
+    </div>`).join('');
+}
+function addItem() {
+  const name  = g('si-name').trim();
+  const price = parseInt(g('si-price'));
+  const emoji = g('si-emoji').trim() || '🎁';
+  const desc  = g('si-desc').trim();
+  if (!name || !price || price < 1) { toast('Nom et prix requis.', 'err'); return; }
+  const c = gCFG();
+  if (!c.shop_items) c.shop_items = [];
+  c.shop_items.push({ name, price, emoji, description: desc });
+  saveCFG();
+  renderShop(c.shop_items);
+  ['si-name','si-price','si-emoji','si-desc'].forEach(id => v(id,''));
+  toast('Article ajouté !', 'ok');
+}
+function removeItem(i) {
+  const c = gCFG();
+  if (!c.shop_items) return;
+  c.shop_items.splice(i, 1);
+  saveCFG(); renderShop(c.shop_items);
+}
+
+// ── MONITORS ──────────────────────────────
+function renderMonitors(monitors) {
+  const el = document.getElementById('monitor-list');
+  if (!monitors.length) { el.innerHTML = '<div style="font-size:.82rem;color:var(--text3)">Aucune surveillance.</div>'; return; }
+  el.innerHTML = monitors.map((m, i) => `
+    <div class="item-row">
+      <span class="pb pb-${m.platform}">${m.platform.toUpperCase()}</span>
+      <div class="item-info">
+        <strong>@${esc(m.username)}</strong>
+        <span>Salon : ${m.channel_id ? '#' + m.channel_id : 'non défini'}</span>
+      </div>
+      <button class="btn btn-danger" style="padding:4px 10px;font-size:.75rem" onclick="removeMonitor(${i})">✕</button>
+    </div>`).join('');
+}
+function addMonitor() {
+  const platform = g('sm-plat');
+  const username = g('sm-user').trim();
+  const channel  = g('sm-ch').trim();
+  const msg      = g('sm-msg').trim();
+  if (!username) { toast('Nom d\'utilisateur requis.', 'err'); return; }
+  const c = gCFG();
+  if (!c.streamers) c.streamers = [];
+  c.streamers.push({ platform, username, channel_id: channel, custom_msg: msg });
+  saveCFG(); renderMonitors(c.streamers);
+  v('sm-user',''); v('sm-ch',''); v('sm-msg','');
+  toast('Surveillance ajoutée !', 'ok');
+}
+function removeMonitor(i) {
+  const c = gCFG();
+  if (!c.streamers) return;
+  c.streamers.splice(i, 1);
+  saveCFG(); renderMonitors(c.streamers);
+}
+
+// ── TOAST ─────────────────────────────────
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── UTILS ─────────────────────────────────
+function g(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function v(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function gColor(id) {
+  const colors = ['#7c5cfc','#5865f2','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
+  return colors[Number(BigInt(id) % BigInt(colors.length))];
+}
+</script>
+
+</body>
+</html>
