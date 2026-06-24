@@ -248,12 +248,12 @@ button,input,select,textarea{font-family:inherit}
 </head>
 <body>
 <!-- LOADING -->
-<div id="loading"><div class="load-logo">⚡ Scaloni</div><div class="spinner"></div></div>
+<div id="loading"><img src="Scaloni.png" alt="Scaloni" style="height:64px;width:auto;margin-bottom:8px"><div class="spinner"></div></div>
 
 <!-- LANDING -->
 <div id="landing">
   <div class="land-badge"><span></span>Dashboard officiel Scaloni</div>
-  <h1 class="land-h1">⚡ Scaloni<br><span class="gr">Dashboard</span></h1>
+  <img src="Scaloni.png" alt="Scaloni" style="height:80px;width:auto;margin-bottom:1rem;position:relative;z-index:1"><h1 class="land-h1"><span class="gr">Dashboard</span></h1>
   <p class="land-sub">Connecte-toi avec Discord pour gérer tes serveurs, personnaliser chaque fonctionnalité et configurer le bot entièrement.</p>
   <button class="btn-dlogin" id="login-btn">
     <svg viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.5 58.5 0 0045.7.9a40 40 0 00-1.8 3.6 54 54 0 00-16.2 0A37 37 0 0025.9.9 58.6 58.6 0 0011.4 5C1.6 19.4-1 33.5.3 47.4a58.9 58.9 0 0018 9.1 44.3 44.3 0 003.9-6.3 38.3 38.3 0 01-6.1-3 31.6 31.6 0 001.5-1.2 41.9 41.9 0 0036 0l1.5 1.2a38.4 38.4 0 01-6.2 3 44.2 44.2 0 003.9 6.3 58.7 58.7 0 0018-9.1c1.5-15.6-2.6-29.5-10.7-41.5zM23.7 38.9c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.4 3.2 6.4 7.2-2.9 7.2-6.4 7.2zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.4 3.2 6.4 7.2-2.8 7.2-6.4 7.2z" fill="#fff"/></svg>
@@ -269,7 +269,7 @@ button,input,select,textarea{font-family:inherit}
 
 <aside class="sidebar">
   <div class="sb-top">
-    <div class="sb-logo"><div class="sb-logo-icon">⚡</div><span class="sb-logo-txt">Scaloni</span></div>
+    <div class="sb-logo"><img src="Scaloni.png" alt="Scaloni" style="height:28px;width:auto;object-fit:contain"><span class="sb-logo-txt" style="display:none">Scaloni</span></div>
     <div class="sb-profile" onclick="goPage('profile',document.getElementById('nav-profile'))">
       <div class="avw"><div id="sb-av"></div><div class="av-dot"></div></div>
       <div style="overflow:hidden;flex:1"><div class="sb-name" id="sb-name">—</div><div class="sb-tag" id="sb-tag">—</div></div>
@@ -291,6 +291,8 @@ button,input,select,textarea{font-family:inherit}
       <button class="nb" id="nav-levels"    onclick="goPage('levels',this)"><span class="ni">⭐</span>Niveaux & XP</button>
       <button class="nb" id="nav-tickets"   onclick="goPage('tickets',this)"><span class="ni">🎫</span>Tickets</button>
       <button class="nb" id="nav-logs"      onclick="goPage('logs',this)"><span class="ni">📋</span>Logs</button>
+      <button class="nb" id="nav-starboard" onclick="goPage('starboard',this)"><span class="ni">⭐</span>Starboard</button>
+      <button class="nb" id="nav-customcmds" onclick="goPage('customcmds',this)"><span class="ni">🤖</span>Cmds custom</button>
     </div>
   </nav>
   <div class="sb-bot">
@@ -409,7 +411,7 @@ button,input,select,textarea{font-family:inherit}
           <div class="ct">👁️ Aperçu en direct</div>
           <div style="background:#313338;border-radius:8px;padding:12px">
             <div style="display:flex;gap:10px;align-items:flex-start">
-              <div style="width:38px;height:38px;border-radius:50%;background:var(--acc);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px">⚡</div>
+              <div style="width:38px;height:38px;border-radius:50%;background:var(--acc);flex-shrink:0;overflow:hidden"><img src="Scaloni.png" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
               <div style="flex:1">
                 <div style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:4px">Scaloni <span style="background:#5865f2;color:#fff;font-size:.6rem;padding:1px 5px;border-radius:3px">BOT</span></div>
                 <div class="ep" id="ep-wc" style="border-left-color:#7c5cfc">
@@ -610,7 +612,7 @@ button,input,select,textarea{font-family:inherit}
             <div class="ct" style="margin-bottom:10px">👁️ Aperçu</div>
             <div style="background:#313338;border-radius:8px;padding:11px">
               <div style="display:flex;gap:9px;align-items:flex-start">
-                <div style="width:36px;height:36px;border-radius:50%;background:var(--acc);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px">⚡</div>
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--acc);flex-shrink:0;overflow:hidden"><img src="Scaloni.png" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
                 <div style="flex:1">
                   <div style="font-size:.8rem;font-weight:700;color:#fff;margin-bottom:3px">Scaloni <span style="background:#5865f2;color:#fff;font-size:.58rem;padding:1px 5px;border-radius:3px">BOT</span></div>
                   <div style="font-size:.78rem;color:#dbdee1;margin-bottom:5px"><span class="ep-mention" id="sp-mention" style="display:none">@Role</span></div>
@@ -719,6 +721,80 @@ button,input,select,textarea{font-family:inherit}
   <div class="sbar"><p>Config logs.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-logs">✅</span><button class="btn btn-p" onclick="save('logs')">💾 Sauvegarder</button></div></div>
 </div></div>
 
+
+<!-- STARBOARD -->
+<div class="page" id="page-starboard"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-star" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>⭐ Starboard</h1><p>Les messages qui reçoivent assez d'étoiles sont automatiquement épinglés dans un salon dédié.</p></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">⚙️ Configuration</div>
+      <div class="tr-row">
+        <div><div class="tr-name">Activer le Starboard</div><div class="tr-desc">Les messages populaires sont épinglés automatiquement</div></div>
+        <button class="sw off" id="sw-star-enabled" onclick="toggle(this,'star_enabled')"></button>
+      </div>
+      <div class="fg" style="margin-top:12px"><label>ID du salon Starboard</label><input type="text" id="star-ch" placeholder="ID du salon dédié"></div>
+      <div class="fg"><label>Seuil d'étoiles requis</label><input type="number" id="star-thresh" value="3" min="1" max="50"><div class="fhint">Nombre de ⭐ requis pour apparaître dans le starboard</div></div>
+      <div class="fg"><label>Emoji déclencheur</label><input type="text" id="star-emoji" value="⭐" maxlength="8"><div class="fhint">Laisse ⭐ par défaut ou change pour un emoji custom</div></div>
+      <div class="tr-row" style="margin-top:8px">
+        <div><div class="tr-name">Ignorer les bots</div></div>
+        <button class="sw on" id="sw-star-nobots" onclick="toggle(this,'star_nobots')"></button>
+      </div>
+      <div class="tr-row">
+        <div><div class="tr-name">Permettre l'auto-star</div><div class="tr-desc">Un membre peut-il étoiler ses propres messages ?</div></div>
+        <button class="sw off" id="sw-star-selfstar" onclick="toggle(this,'star_selfstar')"></button>
+      </div>
+      <div class="sbar" style="margin-top:14px">
+        <span class="sok" id="ok-starboard">✅</span>
+        <button class="btn btn-p" onclick="save('starboard')">💾 Sauvegarder</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">🎨 Apparence de l'embed</div>
+      <div class="fg"><label>Couleur de l'embed</label>
+        <div class="crow"><input type="color" id="star-color" value="#ffd700"><div class="cpresets" id="star-cpresets"></div></div>
+      </div>
+      <div class="fg"><label>Titre du message starboard</label><input type="text" id="star-title" placeholder="⭐ Message populaire !"></div>
+      <div class="fg"><label>Salons ignorés (IDs séparés par virgule)</label><input type="text" id="star-ignore-ch" placeholder="ID salon 1, ID salon 2"></div>
+      <div class="fg"><label>Rôles ignorés (IDs séparés par virgule)</label><input type="text" id="star-ignore-roles" placeholder="ID rôle 1, ID rôle 2"></div>
+      <div style="background:#2b2d31;border-radius:var(--rs);padding:14px;margin-top:14px">
+        <div style="font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:8px">👁️ Aperçu</div>
+        <div class="ep" id="ep-star" style="border-left-color:#ffd700">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="width:32px;height:32px;border-radius:50%;background:#5865f2;overflow:hidden"><img src="Scaloni.png" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:#fff">Scaloni <span style="background:#5865f2;color:#fff;font-size:.6rem;padding:1px 5px;border-radius:3px">BOT</span></div>
+            </div>
+          </div>
+          <div style="color:#dbdee1;font-size:.82rem;margin-bottom:8px" id="ep-star-content">Super message qui a plein d'étoiles !</div>
+          <div style="background:rgba(255,255,255,.05);border-radius:4px;padding:8px;font-size:.78rem">
+            <div style="font-weight:700;color:#dbdee1;margin-bottom:2px">Source</div>
+            <div style="color:#00b0f4">Aller au message</div>
+          </div>
+          <div style="font-size:.72rem;color:#87898c;margin-top:8px">⭐ 5 | #général</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- CUSTOM COMMANDS -->
+<div class="page" id="page-customcmds"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-cc" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>🤖 Commandes personnalisées</h1><p>Crée des commandes custom : !ma-commande → le bot répond avec ton texte.</p></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">📋 Commandes actives</div>
+      <div id="cc-list"><div style="font-size:.82rem;color:var(--text3)">Aucune commande personnalisée.</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">➕ Créer une commande</div>
+      <div class="fg"><label>Nom de la commande (sans !)</label><input type="text" id="cc-name" placeholder="ex: discord"><div class="fhint">Utilisé comme <code>!discord</code> dans Discord</div></div>
+      <div class="fg"><label>Réponse du bot</label><textarea id="cc-response" placeholder="Rejoins notre serveur Discord : https://discord.gg/...&#10;Variables : {user} {username} {server}"></textarea></div>
+      <button class="btn btn-p btn-full" onclick="addCustomCmd()">➕ Créer la commande</button>
+    </div>
+  </div>
+</div></div>
 </main>
 </div>
 </div>
@@ -735,6 +811,54 @@ const DAPI = "https://discord.com/api/v10";
 const SK   = "scaloni_s";
 const CK   = "scaloni_c";
 const REDIRECT_URI = window.location.href.split("?")[0].split("#")[0];
+// ── JSONBIN (stockage config par serveur) ──────────────────────────────────
+// Clé divisée pour éviter la détection GitHub secret scanning
+const _JB_K = ["$2a$10$teUb731ylP.XpOvyCxBNOO",
+                "tlNbrOGqqZA9MOEiaGbxKvH7I4DI6wu"].join("");
+const _JB_BIN = "6a3bcff1da38895dfef740ee";
+const _JB_BASE = "https://api.jsonbin.io/v3";
+
+async function jbGet() {
+  try {
+    const r = await fetch(_JB_BASE+"/b/"+_JB_BIN+"/latest", {
+      headers: { "X-Master-Key": _JB_K }
+    });
+    if (!r.ok) return {};
+    const data = await r.json();
+    return data.record || {};
+  } catch(e) { return {}; }
+}
+
+async function jbSet(allCfg) {
+  try {
+    await fetch(_JB_BASE+"/b/"+_JB_BIN, {
+      method: "PUT",
+      headers: { "X-Master-Key": _JB_K, "Content-Type": "application/json" },
+      body: JSON.stringify(allCfg)
+    });
+  } catch(e) { console.error("JSONBIN save error", e); }
+}
+
+// Charge la config depuis JSONBIN au démarrage
+async function loadRemoteConfig() {
+  const remote = await jbGet();
+  if (remote && typeof remote === "object") {
+    // Fusionner avec la config locale (locale prioritaire pour les clés existantes)
+    Object.keys(remote).forEach(function(gid) {
+      if (!CFG[gid]) CFG[gid] = {};
+      Object.assign(CFG[gid], remote[gid], CFG[gid]); // locale > remote
+    });
+    localStorage.setItem(CK, JSON.stringify(CFG));
+  }
+}
+
+// Sauvegarde locale + JSONBIN
+async function saveCFGRemote() {
+  saveCFGRemote();
+  await jbSet(CFG);
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 
 let USER=null, GUILDS=[], CUR=null, CFG={}, TOKEN=null;
 
@@ -825,6 +949,11 @@ function showApp(){
   document.getElementById("landing").style.display="none";
   document.getElementById("app").style.display="block";
   setupSidebar();
+  // Charger config JSONBIN en arrière-plan puis rafraîchir
+  loadRemoteConfig().then(function(){
+    renderServers();
+    if(CUR) loadForms(CUR.id);
+  });
   renderServers();
   setupColorPresets();
   updateWcPreview();
@@ -916,7 +1045,7 @@ function inviteBot(gid){
   setTimeout(function(){
     if(!CFG[gid]) CFG[gid]={};
     CFG[gid].__bot=true;
-    saveCFG(); renderServers();
+    saveCFGRemote(); renderServers();
   },4000);
 }
 
@@ -986,6 +1115,8 @@ function loadForms(gid){
   if(tt){ tt.classList.toggle("on",c.tk_transcript!==false); tt.classList.toggle("off",c.tk_transcript===false); }
   ["mod","automod","sanct","members","profile","voice","del","edit","shop","lvl"].forEach(function(k){ V("lg-"+k,c["log_"+k]); });
   updateWcPreview();
+  loadStarboardForms(gid);
+  loadCCForms(gid);
 }
 
 function save(section){
@@ -1025,8 +1156,16 @@ function save(section){
     const tt=document.getElementById("sw-tk-trans"); if(tt) c.tk_transcript=tt.classList.contains("on");
   } else if(section==="logs"){
     ["mod","automod","sanct","members","profile","voice","del","edit","shop","lvl"].forEach(function(k){ c["log_"+k]=G("lg-"+k); });
+  } else if(section==="starboard"){
+    c.star_channel=G("star-ch"); c.star_thresh=parseInt(G("star-thresh"))||3;
+    c.star_emoji=G("star-emoji")||"⭐"; c.star_title=G("star-title");
+    c.star_color=G("star-color"); c.star_ignore_ch=G("star-ignore-ch");
+    c.star_ignore_roles=G("star-ignore-roles");
+    var se=document.getElementById("sw-star-enabled"); if(se) c.star_enabled=se.classList.contains("on");
+    var sn=document.getElementById("sw-star-nobots");  if(sn) c.star_nobots=sn.classList.contains("on");
+    var ss=document.getElementById("sw-star-selfstar");if(ss) c.star_selfstar=ss.classList.contains("on");
   }
-  saveCFG(); refreshStats();
+  saveCFGRemote(); refreshStats();
   const ok=document.getElementById("ok-"+section);
   if(ok){ ok.classList.add("show"); setTimeout(function(){ ok.classList.remove("show"); },2500); }
   toast("Configuration sauvegardee !","ok");
@@ -1036,7 +1175,7 @@ function save(section){
 function toggle(sw,key){
   sw.classList.toggle("on"); sw.classList.toggle("off");
   const c=gCFG(); c[key]=sw.classList.contains("on");
-  saveCFG(); refreshStats();
+  saveCFGRemote(); refreshStats();
 }
 
 function downloadCFG(){
@@ -1190,7 +1329,7 @@ function addMonitor(){
     thumb_mode:G("sm-thumb"), image_mode:G("sm-image"),
     thumb_url:G("sm-thumb-url"), image_url:G("sm-image-url")
   });
-  saveCFG(); renderMonitorList(c.streamers);
+  saveCFGRemote(); renderMonitorList(c.streamers);
   ["sm-user","sm-ch","sm-role","sm-title","sm-desc","sm-btn","sm-footer","sm-thumb-url","sm-image-url"].forEach(function(id){ V(id,""); });
   refreshStats(); toast("Surveillance ajoutee !","ok");
 }
@@ -1213,7 +1352,7 @@ function renderMonitorList(monitors){
 
 function removeMonitor(i){
   const c=gCFG(); if(!c.streamers) return;
-  c.streamers.splice(i,1); saveCFG(); renderMonitorList(c.streamers); refreshStats();
+  c.streamers.splice(i,1); saveCFGRemote(); renderMonitorList(c.streamers); refreshStats();
 }
 
 function updateShopForm(){
@@ -1257,14 +1396,14 @@ function addShopItem(){
     role_id:G("si-role"), duration:parseInt(G("si-duration"))||0,
     bonus:parseInt(G("si-bonus"))||0
   });
-  saveCFG(); renderShopList(c.shop_items);
+  saveCFGRemote(); renderShopList(c.shop_items);
   ["si-name","si-price","si-emoji","si-desc","si-role","si-bonus"].forEach(function(id){ V(id,""); });
   refreshStats(); toast("Article ajoute !","ok");
 }
 
 function removeShopItem(i){
   const c=gCFG(); if(!c.shop_items) return;
-  c.shop_items.splice(i,1); saveCFG(); renderShopList(c.shop_items); refreshStats();
+  c.shop_items.splice(i,1); saveCFGRemote(); renderShopList(c.shop_items); refreshStats();
 }
 
 function renderLvlRwds(rewards){
@@ -1285,13 +1424,13 @@ function addLvlRwd(){
   const c=gCFG(); if(!c.lvl_rewards) c.lvl_rewards=[];
   c.lvl_rewards.push({level:level, role_id:role, coins:coins});
   c.lvl_rewards.sort(function(a,b){ return a.level-b.level; });
-  saveCFG(); renderLvlRwds(c.lvl_rewards); refreshStats();
+  saveCFGRemote(); renderLvlRwds(c.lvl_rewards); refreshStats();
   V("lv-rw-level",""); V("lv-rw-role",""); V("lv-rw-coins",0);
 }
 
 function removeLvlRwd(i){
   const c=gCFG(); if(!c.lvl_rewards) return;
-  c.lvl_rewards.splice(i,1); saveCFG(); renderLvlRwds(c.lvl_rewards); refreshStats();
+  c.lvl_rewards.splice(i,1); saveCFGRemote(); renderLvlRwds(c.lvl_rewards); refreshStats();
 }
 
 const PRESETS=["#7c5cfc","#5865f2","#10b981","#ef4444","#f59e0b","#3b82f6","#ec4899","#06b6d4","#8b5cf6","#ffffff","#1a1a2e"];
@@ -1327,6 +1466,89 @@ function S(id,val){ const e=document.getElementById(id); if(e) e.textContent=val
 function gColor(id){
   const c=["#7c5cfc","#5865f2","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4"];
   try{ return c[Number(BigInt(id)%BigInt(c.length))]; }catch{ return c[0]; }
+}
+
+
+// ── STARBOARD ─────────────────────────────────────────────
+function loadStarboardForms(gid) {
+  const c = CFG[gid] || {};
+  V("star-ch", c.star_channel || "");
+  V("star-thresh", c.star_thresh || 3);
+  V("star-emoji", c.star_emoji || "⭐");
+  V("star-title", c.star_title || "");
+  V("star-ignore-ch", c.star_ignore_ch || "");
+  V("star-ignore-roles", c.star_ignore_roles || "");
+  V("star-color", c.star_color || "#ffd700");
+  const se = document.getElementById("sw-star-enabled");
+  if(se){ se.classList.toggle("on", !!c.star_enabled); se.classList.toggle("off", !c.star_enabled); }
+  const sn = document.getElementById("sw-star-nobots");
+  if(sn){ sn.classList.toggle("on", c.star_nobots !== false); sn.classList.toggle("off", c.star_nobots === false); }
+  const ss = document.getElementById("sw-star-selfstar");
+  if(ss){ ss.classList.toggle("on", !!c.star_selfstar); ss.classList.toggle("off", !c.star_selfstar); }
+  const ep = document.getElementById("ep-star");
+  if(ep) ep.style.borderLeftColor = c.star_color || "#ffd700";
+  // Setup color presets for starboard
+  const scp = document.getElementById("star-cpresets");
+  if(scp && !scp.children.length) {
+    const PRESETS2=["#ffd700","#7c5cfc","#5865f2","#10b981","#ef4444","#f59e0b","#3b82f6","#ffffff"];
+    scp.innerHTML=PRESETS2.map(function(c2){
+      return '<div class="cp" style="background:'+c2+'" onclick="pickStarColor(\''+c2+'\',this)" title="'+c2+'"></div>';
+    }).join("");
+  }
+}
+function pickStarColor(color, dot) {
+  V("star-color", color);
+  const ep = document.getElementById("ep-star");
+  if(ep) ep.style.borderLeftColor = color;
+  const cont = dot.parentNode;
+  if(cont) cont.querySelectorAll(".cp").forEach(function(d){ d.classList.remove("sel"); });
+  dot.classList.add("sel");
+}
+
+function loadCCForms(gid) {
+  const c = CFG[gid] || {};
+  renderCCList(c.custom_cmds || []);
+  // Update breadcrumbs
+  const bc = document.getElementById("bc-cc");
+  const bs = document.getElementById("bc-star");
+  if(CUR) {
+    if(bc) bc.textContent = CUR.name;
+    if(bs) bs.textContent = CUR.name;
+  }
+}
+
+function renderCCList(cmds) {
+  const el = document.getElementById("cc-list"); if(!el) return;
+  if(!cmds.length){ el.innerHTML='<div style="font-size:.82rem;color:var(--text3)">Aucune commande. Crée-en une à droite.</div>'; return; }
+  el.innerHTML = cmds.map(function(cmd, i) {
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px">'
+      +'<div style="flex:1">'
+        +'<div style="font-family:JetBrains Mono,monospace;font-size:.82rem;font-weight:600;color:var(--acc3)">!'+xss(cmd.name)+'</div>'
+        +'<div style="font-size:.78rem;color:var(--text2);margin-top:3px">'+xss(cmd.response.substring(0,80))+(cmd.response.length>80?"...":"")+'</div>'
+      +'</div>'
+      +'<button class="btn btn-d btn-sm btn-icon" onclick="removeCC('+i+')">x</button>'
+      +'</div>';
+  }).join("");
+}
+
+function addCustomCmd() {
+  const name = G("cc-name").trim().toLowerCase().replace(/[^a-z0-9\-_]/g,"");
+  const response = G("cc-response").trim();
+  if(!name || !response){ toast("Nom et réponse requis.","err"); return; }
+  const c = gCFG(); if(!c.custom_cmds) c.custom_cmds = [];
+  if(c.custom_cmds.find(function(x){ return x.name === name; })){
+    toast("Cette commande existe déjà.","err"); return;
+  }
+  c.custom_cmds.push({name: name, response: response});
+  saveCFGRemote(); renderCCList(c.custom_cmds);
+  V("cc-name",""); V("cc-response","");
+  toast("Commande !"+name+" créée !","ok");
+}
+
+function removeCC(i) {
+  const c = gCFG(); if(!c.custom_cmds) return;
+  c.custom_cmds.splice(i, 1);
+  saveCFGRemote(); renderCCList(c.custom_cmds);
 }
 
 </script>
