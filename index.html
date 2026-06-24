@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Scaloni — Dashboard</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://discord.com https://cdn.discordapp.com https://i.ytimg.com https://static-cdn.jtvnw.net https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src * data:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://discord.com https://cdn.discordapp.com https://i.ytimg.com https://static-cdn.jtvnw.net https://fonts.googleapis.com https://fonts.gstatic.com https://api.jsonbin.io; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src * data:; connect-src 'self' https://discord.com https://api.jsonbin.io https://cdn.discordapp.com;">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -868,7 +868,9 @@ function validId(id){ return typeof id==="string" && /^\d{17,20}$/.test(id); }
 function isAdmin(gid){ return GUILDS.some(g=>g.id===gid); }
 
 window.addEventListener("load", async()=>{
-  CFG = safeJ(localStorage.getItem(CK),{});
+  // Garantit que CFG est toujours un objet valide, jamais null
+  CFG = safeJ(localStorage.getItem(CK), null);
+  if(!CFG || typeof CFG !== "object") CFG = {};
   const hash = new URLSearchParams(window.location.hash.slice(1));
   const sp   = new URLSearchParams(window.location.search);
   const tok  = hash.get("access_token")||sp.get("access_token");
@@ -945,19 +947,23 @@ function showLandErr(msg){
   el.textContent=msg; el.style.display="block";
 }
 
-function showApp(){
+async function showApp(){
   document.getElementById("landing").style.display="none";
   document.getElementById("app").style.display="block";
   setupSidebar();
-  // Charger config JSONBIN en arrière-plan puis rafraîchir
-  loadRemoteConfig().then(function(){
-    renderServers();
-    if(CUR) loadForms(CUR.id);
-  });
-  renderServers();
   setupColorPresets();
   updateWcPreview();
   updateSmPreview();
+  // Afficher d'abord avec la config locale
+  renderServers();
+  // Puis charger JSONBIN et rafraîchir silencieusement
+  try {
+    await loadRemoteConfig();
+    renderServers();
+    if(CUR && CUR.id) loadForms(CUR.id);
+  } catch(e) {
+    console.warn("JSONBIN indisponible, config locale utilisée.", e);
+  }
 }
 
 function setupSidebar(){
@@ -1015,7 +1021,7 @@ function openGuild(gid){
   if(!validId(gid)||!isAdmin(gid)){ toast("Acces refuse.","err"); return; }
   CUR=GUILDS.find(g=>g.id===gid);
   if(!CUR) return;
-  const hasBot=!!(CFG[gid]&&CFG[gid].__bot);
+  const hasBot=!!(CFG && CFG[gid] && CFG[gid].__bot);
   document.getElementById("guild-nav").style.display="block";
   document.getElementById("guild-nav-lbl").textContent=CUR.name;
   ["nb","ov","wc","am","ec","sc","lv","tk","lg"].forEach(function(id){
@@ -1043,6 +1049,7 @@ function inviteBot(gid){
   window.open(url,"_blank");
   toast("Fenetre Discord ouverte. Apres avoir accepte, clique a nouveau sur le serveur.","info");
   setTimeout(function(){
+    if(!CFG || typeof CFG !== "object") CFG = {};
     if(!CFG[gid]) CFG[gid]={};
     CFG[gid].__bot=true;
     saveCFGRemote(); renderServers();
@@ -1072,6 +1079,7 @@ function refreshStats(){
 
 function gCFG(){
   if(!CUR) return {};
+  if(!CFG || typeof CFG !== "object") CFG = {};
   if(!CFG[CUR.id]) CFG[CUR.id]={};
   return CFG[CUR.id];
 }
