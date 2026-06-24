@@ -2,959 +2,1333 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Scaloni — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://discord.com https://cdn.discordapp.com https://i.ytimg.com https://static-cdn.jtvnw.net https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src * data:;">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ─── CONFIG : change ici ton Client ID ─────────── */
-/* Voir plus bas dans le JS : const CLIENT_ID = ... */
-
 :root{
-  --bg:#0a0b0f; --s1:#111318; --s2:#181b24; --s3:#1f2330;
-  --acc:#7c5cfc; --acc2:#5865f2; --acc3:#a78bfa;
-  --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
-  --border:#252836; --border2:#2d3348;
-  --green:#10b981; --red:#ef4444; --gold:#f59e0b;
-  --r:12px; --rs:8px;
+  --bg:#07080c;--s1:#0f1117;--s2:#161922;--s3:#1c2030;--s4:#222638;
+  --acc:#7c5cfc;--acc-h:#6b4ee6;--acc2:#5865f2;--acc3:#a78bfa;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;--text4:#334155;
+  --border:#1e2235;--border2:#272d42;--border3:#313959;
+  --green:#10b981;--gbg:rgba(16,185,129,.1);--gb:rgba(16,185,129,.25);
+  --red:#ef4444;--rbg:rgba(239,68,68,.1);--rb:rgba(239,68,68,.25);
+  --gold:#f59e0b;--ybg:rgba(245,158,11,.1);--yb:rgba(245,158,11,.25);
+  --blue:#3b82f6;--bbg:rgba(59,130,246,.1);--bb:rgba(59,130,246,.25);
+  --pbg:rgba(124,92,252,.1);--pb:rgba(124,92,252,.25);
+  --r:14px;--rs:9px;--rx:20px;--tr:.18s ease;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-button{cursor:pointer;font-family:inherit}
-input,select,textarea{font-family:inherit}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:99px}
+::selection{background:rgba(124,92,252,.3)}
 
 /* LOADING */
-#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .3s}
-.spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;transition:opacity .4s}
+#loading.out{opacity:0;pointer-events:none}
+.load-logo{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--acc),var(--acc3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* LANDING */
+#landing{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative;overflow:hidden}
+#landing::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% -5%,rgba(124,92,252,.18),transparent 70%),radial-gradient(ellipse 40% 40% at 80% 60%,rgba(88,101,242,.08),transparent 60%);pointer-events:none}
+#landing::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);pointer-events:none}
+.land-badge{display:inline-flex;align-items:center;gap:7px;background:var(--pbg);border:1px solid var(--pb);color:var(--acc3);font-size:.78rem;font-weight:600;padding:.4rem 1rem;border-radius:var(--rx);margin-bottom:1.5rem;position:relative;z-index:1}
+.land-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.land-h1{font-size:clamp(2.5rem,7vw,5rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:1.2rem;position:relative;z-index:1}
+.land-h1 .gr{background:linear-gradient(135deg,#fff 0%,var(--acc3) 50%,var(--acc2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.land-sub{font-size:1.1rem;color:var(--text2);max-width:520px;margin:0 auto 2.5rem;line-height:1.75;position:relative;z-index:1}
+.land-err{background:var(--rbg);border:1px solid var(--rb);color:var(--red);border-radius:var(--rs);padding:11px 16px;font-size:.875rem;margin-top:20px;max-width:420px;display:none}
+.btn-dlogin{display:inline-flex;align-items:center;gap:10px;background:var(--acc2);color:#fff;border:none;padding:13px 26px;border-radius:var(--r);font-size:.95rem;font-weight:700;cursor:pointer;transition:all var(--tr)}
+.btn-dlogin:hover{background:#4752c4;transform:translateY(-2px);box-shadow:0 12px 32px rgba(88,101,242,.4)}
+.btn-dlogin svg{width:22px;height:22px}
+
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+#app{display:none;min-height:100vh}
+.layout{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
 
 /* SIDEBAR */
 .sidebar{background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sidebar-top{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.logo-icon{width:32px;height:32px;border-radius:9px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.logo-text{font-size:1.1rem;font-weight:800;letter-spacing:-.02em}
-.profile-box{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px}
-.avatar-wrap{position:relative;flex-shrink:0}
-.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;display:block}
-.avatar-placeholder{width:38px;height:38px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff}
-.online-dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--s2)}
-.profile-name{font-size:.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.profile-tag{font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
-.sidebar-nav{padding:12px 8px;flex:1}
-.nav-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:0 8px;margin-bottom:4px}
-.nav-section{margin-bottom:16px}
-.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:var(--rs);font-size:.875rem;color:var(--text2);background:none;border:none;text-align:left;transition:all .15s}
-.nav-btn:hover{background:var(--s2);color:var(--text)}
-.nav-btn.active{background:rgba(124,92,252,.15);color:var(--acc)}
-.nav-btn .icon{font-size:1rem;width:20px;text-align:center}
-.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border)}
+.sb-top{padding:18px 14px 14px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.sb-logo-icon{width:30px;height:30px;border-radius:8px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:15px}
+.sb-logo-txt{font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.sb-profile{display:flex;align-items:center;gap:9px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 11px;cursor:pointer;transition:border-color var(--tr)}
+.sb-profile:hover{border-color:var(--border2)}
+.avw{position:relative;flex-shrink:0}
+.av{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block}
+.av-ph{width:34px;height:34px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.av-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;background:var(--green);border:2px solid var(--s2)}
+.sb-name{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-tag{font-size:.7rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.sb-nav{padding:10px 8px;flex:1}
+.nl{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:0 7px;margin-bottom:3px}
+.ns{margin-bottom:18px}
+.nb{display:flex;align-items:center;gap:9px;width:100%;padding:7px 9px;border-radius:var(--rs);font-size:.82rem;color:var(--text2);background:none;border:none;text-align:left;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.nb:hover{background:var(--s2);color:var(--text)}
+.nb.active{background:var(--pbg);color:var(--acc3);border-left:2px solid var(--acc)}
+.nb .ni{font-size:.9rem;width:18px;text-align:center;flex-shrink:0}
+.sb-bot{padding:10px 8px;border-top:1px solid var(--border)}
 
 /* MAIN */
-.main{padding:28px 32px;overflow-y:auto}
-.page{display:none}
+.main{background:var(--bg)}
+.page{display:none;min-height:100vh}
 .page.active{display:block}
-.page-header{margin-bottom:24px}
-.page-header h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
-.page-header p{color:var(--text2);font-size:.875rem;margin-top:4px}
-
-/* LANDING */
-#page-landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(124,92,252,.15),transparent 70%)}
-#page-landing h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.04em;margin-bottom:1rem}
-#page-landing h1 span{color:var(--acc)}
-#page-landing .sub{color:var(--text2);font-size:1.05rem;max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
-.btn-discord-login{display:inline-flex;align-items:center;gap:12px;background:var(--acc2);color:#fff;border:none;padding:14px 28px;border-radius:var(--r);font-size:1rem;font-weight:600;transition:all .2s;text-decoration:none}
-.btn-discord-login:hover{background:#4752c4;transform:translateY(-2px);box-shadow:0 8px 24px rgba(88,101,242,.4)}
-.btn-discord-login svg{width:24px;height:24px;flex-shrink:0}
-.error-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:var(--rs);padding:12px 16px;color:var(--red);font-size:.875rem;margin-top:20px;max-width:400px;display:none}
+.pi{padding:28px 32px;max-width:1100px}
+.ph{margin-bottom:22px}
+.ph h1{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.ph p{color:var(--text2);font-size:.84rem;margin-top:5px}
+.bc{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text3);margin-bottom:20px}
+.bc button{background:none;border:none;color:var(--text3);font-size:.78rem;cursor:pointer;padding:0;transition:color var(--tr)}
+.bc button:hover{color:var(--text)}
 
 /* CARDS */
 .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px}
-.card-title{font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px}
-
-/* SERVERS GRID */
-.servers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px}
-.server-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
-.server-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.server-card.bot-on{border-color:rgba(16,185,129,.3)}
-.server-card.bot-on:hover{border-color:rgba(16,185,129,.6)}
-.server-icon{width:60px;height:60px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;overflow:hidden}
-.server-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.server-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
-.server-members{font-size:.72rem;color:var(--text3)}
-.server-badge{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:99px}
-.badge-on{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
-.badge-add{background:var(--s2);color:var(--text3);border:1px solid var(--border2)}
-.server-card:hover .badge-add{background:rgba(124,92,252,.1);color:var(--acc);border-color:rgba(124,92,252,.3)}
-
-/* SERVER HEADER */
-.breadcrumb{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text3);margin-bottom:20px}
-.breadcrumb button{background:none;border:none;color:var(--text3);font-size:.8rem;display:flex;align-items:center;gap:4px;padding:0}
-.breadcrumb button:hover{color:var(--text)}
-.server-header-card{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px}
-.server-header-icon{width:52px;height:52px;border-radius:50%;flex-shrink:0;font-size:22px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.server-header-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.server-header-actions{margin-left:auto;display:flex;gap:8px}
-
-/* BTNS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);font-size:.8rem;font-weight:600;border:none;transition:all .15s}
-.btn-primary{background:var(--acc);color:#fff}
-.btn-primary:hover{background:#6b4ee6}
-.btn-success{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border2)}
-.btn-ghost:hover{background:var(--s3);color:var(--text)}
-.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.btn-invite{display:inline-flex;align-items:center;gap:8px;background:var(--acc2);color:#fff;border:none;padding:12px 22px;border-radius:var(--r);font-size:.9rem;font-weight:600}
-.btn-invite:hover{background:#4752c4}
-
-/* NO BOT */
-.no-bot-box{text-align:center;padding:48px 24px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r)}
-.no-bot-box .big-icon{font-size:3rem;margin-bottom:16px}
-.no-bot-box h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
-.no-bot-box p{color:var(--text2);font-size:.875rem;margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6}
-
-/* STATS */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;text-align:center}
-.stat-card .num{font-size:1.6rem;font-weight:800;color:var(--acc)}
-.stat-card .lbl{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.card+.card{margin-top:14px}
+.ct{font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px}
 
 /* FORMS */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:6px}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:var(--rs);font-size:.875rem;transition:border-color .15s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--acc)}
-.form-group textarea{min-height:72px;resize:vertical;line-height:1.5}
-.form-hint{font-size:.72rem;color:var(--text3);margin-top:4px}
-code{font-family:'JetBrains Mono',monospace;font-size:.8em;background:var(--s3);padding:1px 6px;border-radius:4px}
+.fg{margin-bottom:13px}
+.fg label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:var(--rs);font-size:.84rem;transition:border-color var(--tr);outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc)}
+.fg textarea{min-height:68px;resize:vertical;line-height:1.55}
+.fg select option{background:var(--s2)}
+.fhint{font-size:.7rem;color:var(--text3);margin-top:4px;line-height:1.5}
+.fhint code{font-family:'JetBrains Mono',monospace;font-size:.78em;background:var(--s3);padding:1px 5px;border-radius:4px;color:var(--acc3)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);font-size:.8rem;font-weight:600;border:none;cursor:pointer;transition:all var(--tr)}
+.btn-p{background:var(--acc);color:#fff}.btn-p:hover{background:var(--acc-h);transform:translateY(-1px)}
+.btn-g{background:var(--s2);color:var(--text2);border:1px solid var(--border2)}.btn-g:hover{background:var(--s3);color:var(--text)}
+.btn-ok{background:var(--gbg);color:var(--green);border:1px solid var(--gb)}
+.btn-d{background:var(--rbg);color:var(--red);border:1px solid var(--rb)}.btn-d:hover{background:rgba(239,68,68,.18)}
+.btn-sm{padding:5px 10px;font-size:.75rem}
+.btn-full{width:100%;justify-content:center}
+.btn-icon{padding:6px;aspect-ratio:1;justify-content:center}
 
 /* TOGGLES */
-.toggle-list{display:flex;flex-direction:column}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
-.toggle-row:last-child{border-bottom:none}
-.t-name{font-size:.85rem;font-weight:500}
-.t-desc{font-size:.72rem;color:var(--text3);margin-top:2px}
-.switch{width:38px;height:22px;border-radius:99px;position:relative;flex-shrink:0;transition:background .2s;border:none}
-.switch.on{background:var(--acc)}
-.switch.off{background:var(--border2)}
-.switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left .2s}
-.switch.on::after{left:19px}
-.switch.off::after{left:3px}
+.tl{display:flex;flex-direction:column}
+.tr-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.tr-row:last-child{border-bottom:none}
+.tr-name{font-size:.84rem;font-weight:500}
+.tr-desc{font-size:.72rem;color:var(--text3);margin-top:2px}
+.sw{width:40px;height:22px;border-radius:99px;position:relative;flex-shrink:0;border:none;cursor:pointer;transition:background var(--tr)}
+.sw.on{background:var(--acc)}.sw.off{background:var(--border2)}
+.sw::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left var(--tr)}
+.sw.on::after{left:21px}.sw.off::after{left:3px}
 
 /* SAVE BAR */
-.save-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-top:16px}
-.save-bar p{font-size:.8rem;color:var(--text2)}
-.save-ok{font-size:.8rem;color:var(--green);display:none;align-items:center;gap:5px}
-.save-ok.show{display:flex}
+.sbar{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-top:16px;gap:12px}
+.sbar p{font-size:.78rem;color:var(--text2);flex:1}
+.sok{font-size:.78rem;color:var(--green);display:none;align-items:center;gap:5px;white-space:nowrap}
+.sok.show{display:flex}
 
-/* SHOP / MONITORS */
-.item-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.item-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);font-size:.82rem}
-.item-row .em{font-size:1.2rem;flex-shrink:0}
-.item-info{flex:1;overflow:hidden}
-.item-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item-info span{font-size:.72rem;color:var(--text3)}
-.item-price{font-size:.8rem;font-weight:700;color:var(--gold);white-space:nowrap}
-.pb{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0}
-.pb-twitch{background:rgba(145,70,255,.2);color:#c084fc}
-.pb-youtube{background:rgba(255,0,0,.15);color:#f87171}
-.pb-twitter{background:rgba(29,161,242,.15);color:#7dd3fc}
-.pb-instagram{background:rgba(225,48,108,.15);color:#f9a8d4}
-.pb-tiktok{background:rgba(255,255,255,.1);color:var(--text)}
-.pb-reddit{background:rgba(255,69,0,.15);color:#fdba74}
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:99px}
+.bg{background:var(--gbg);color:var(--green);border:1px solid var(--gb)}
+.br{background:var(--rbg);color:var(--red);border:1px solid var(--rb)}
+.bp{background:var(--pbg);color:var(--acc3);border:1px solid var(--pb)}
+.by{background:var(--ybg);color:var(--gold);border:1px solid var(--yb)}
+.bb{background:var(--bbg);color:var(--blue);border:1px solid var(--bb)}
 
-/* PROFILE PAGE */
-.profile-big{display:flex;align-items:center;gap:20px;padding:20px 24px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px}
-.avatar-big{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--border2)}
-.avatar-big-placeholder{width:72px;height:72px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff}
-.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.tag{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;padding:3px 9px;border-radius:99px;background:var(--s2);border:1px solid var(--border2);color:var(--text2)}
+/* SERVERS */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:13px}
+.sc{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:17px 12px;text-align:center;cursor:pointer;transition:all var(--tr);position:relative;overflow:hidden}
+.sc:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.sc.byes{border-color:var(--gb)}.sc.byes:hover{border-color:var(--green)}
+.sc-icon{width:56px;height:56px;border-radius:50%;margin:0 auto 11px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;overflow:hidden;position:relative}
+.sc-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.sc-name{font-size:.77rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.sc-sub{font-size:.7rem;color:var(--text3);margin-bottom:8px}
+.sc-chk{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem}
+.sc-chk.y{background:var(--gbg);color:var(--green);border:1px solid var(--gb)}
+.sc-chk.n{background:var(--s3);color:var(--text3)}
+
+/* GUILD HEADER */
+.ghdr{display:flex;align-items:center;gap:15px;padding:14px 18px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:18px}
+.gh-icon{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;overflow:hidden}
+.gh-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.gh-name{font-size:.95rem;font-weight:700}
+.gh-id{font-size:.75rem;color:var(--text3);margin-top:2px}
+.gh-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* STATS */
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);padding:13px 15px;text-align:center}
+.stat .n{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat .l{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+
+/* EMBED PREVIEW */
+.ep{background:#2b2d31;border-radius:var(--rs);padding:14px;border-left:4px solid var(--acc)}
+.ep-title{font-size:.88rem;font-weight:700;color:#00b0f4;margin-bottom:5px;word-break:break-word}
+.ep-desc{font-size:.8rem;color:#dbdee1;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.ep-img{width:100%;border-radius:6px;margin-top:10px;max-height:180px;object-fit:cover;display:none}
+.ep-thumb{width:80px;height:80px;border-radius:6px;object-fit:cover;float:right;margin-left:12px;display:none}
+.ep-footer{font-size:.72rem;color:#87898c;margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;display:flex;align-items:center;gap:5px}
+.ep-btns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ep-btn{background:#4e5058;color:#dbdee1;padding:5px 11px;border-radius:4px;font-size:.78rem;font-weight:500;border:none}
+.ep-btn.lnk{background:var(--acc2);color:#fff}
+.ep-mention{background:rgba(88,101,242,.3);color:#bdc3f1;padding:0 4px;border-radius:4px;font-size:.82rem}
+
+/* SHOP */
+.shlist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.shi{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:11px;padding:10px 13px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs)}
+.shi-em{font-size:1.3rem;line-height:1}
+.shi-name{font-size:.84rem;font-weight:600}
+.shi-meta{font-size:.72rem;color:var(--text3);display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap}
+.shi-price{font-size:.82rem;font-weight:700;color:var(--gold);white-space:nowrap}
+
+/* MONITORS */
+.mlist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.mi{display:flex;align-items:flex-start;gap:11px;padding:12px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs)}
+.mi-plat{font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;margin-top:1px}
+.plat-twitch{background:rgba(145,70,255,.2);color:#c084fc}
+.plat-youtube{background:rgba(255,0,0,.15);color:#f87171}
+.plat-twitter{background:rgba(29,161,242,.15);color:#7dd3fc}
+.plat-instagram{background:rgba(225,48,108,.15);color:#f9a8d4}
+.plat-tiktok{background:rgba(255,255,255,.08);color:var(--text)}
+.plat-reddit{background:rgba(255,69,0,.15);color:#fdba74}
+.mi-info{flex:1;overflow:hidden}
+.mi-info strong{font-size:.84rem;display:block}
+.mi-info span{font-size:.72rem;color:var(--text3)}
+.mi-prev{margin-top:8px;background:#2b2d31;border-radius:6px;border-left:3px solid var(--red);padding:8px 10px;font-size:.78rem;color:#dbdee1}
+.mi-thumb{width:100%;max-height:90px;object-fit:cover;border-radius:4px;margin-top:6px;display:none}
+
+/* COLOR */
+.crow{display:flex;align-items:center;gap:8px}
+.crow input[type=color]{width:36px;height:36px;border-radius:6px;border:1px solid var(--border2);background:none;cursor:pointer;padding:2px}
+.cpresets{display:flex;gap:5px;flex-wrap:wrap}
+.cp{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all var(--tr)}
+.cp:hover,.cp.sel{border-color:#fff;transform:scale(1.15)}
+
+/* ITABS */
+.itabs{display:flex;gap:2px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:3px;margin-bottom:16px;width:fit-content}
+.itab{background:none;border:none;padding:6px 13px;border-radius:7px;font-size:.78rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all var(--tr)}
+.itab:hover{color:var(--text)}.itab.active{background:var(--s1);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+/* NO BOT */
+.nobot{text-align:center;padding:52px 24px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r)}
+.nobot .bi{font-size:3rem;margin-bottom:16px;display:block}
+.nobot h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.nobot p{color:var(--text2);font-size:.875rem;margin-bottom:22px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.65}
+.btn-addbot{display:inline-flex;align-items:center;gap:9px;background:var(--acc2);color:#fff;border:none;padding:13px 24px;border-radius:var(--r);font-size:.9rem;font-weight:700;cursor:pointer;transition:all var(--tr)}
+.btn-addbot:hover{background:#4752c4;transform:translateY(-2px)}
+
+/* EMBED BUILDER GRID */
+.eb{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;z-index:100;padding:11px 16px;border-radius:var(--rs);font-size:.875rem;font-weight:500;display:none;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:320px}
-.toast.show{display:flex}
-.toast.ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
-.toast.err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+#toast{position:fixed;bottom:22px;right:22px;z-index:9000;padding:11px 16px;border-radius:var(--rs);font-size:.84rem;font-weight:500;display:none;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(0,0,0,.5);max-width:340px;animation:tIn .2s ease}
+@keyframes tIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+#toast.show{display:flex}
+#toast.ok{background:var(--gbg);border:1px solid var(--gb);color:var(--green)}
+#toast.err{background:var(--rbg);border:1px solid var(--rb);color:var(--red)}
+#toast.info{background:var(--pbg);border:1px solid var(--pb);color:var(--acc3)}
 
-/* CONFIG STORAGE NOTICE */
-.cfg-notice{background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.2);border-radius:var(--rs);padding:9px 13px;font-size:.78rem;color:var(--acc3);margin-bottom:16px}
-
-@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.main{padding:16px}.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{height:auto;position:relative}
+  .pi{padding:16px}
+  .g2,.eb{grid-template-columns:1fr}
+  .stats4{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
+<!-- LOADING -->
+<div id="loading"><div class="load-logo">⚡ Scaloni</div><div class="spinner"></div></div>
 
-<div id="loading"><div class="spinner"></div></div>
-
-<!-- ══════════════ PAGE LANDING ══════════════════════════ -->
-<div id="page-landing" style="display:none">
-  <h1>⚡ Scaloni<br><span>Dashboard</span></h1>
-  <p class="sub">Connecte-toi avec Discord pour voir tous tes serveurs, ajouter le bot et tout configurer.</p>
-  <a id="login-btn" href="#" class="btn-discord-login">
+<!-- LANDING -->
+<div id="landing">
+  <div class="land-badge"><span></span>Dashboard officiel Scaloni</div>
+  <h1 class="land-h1">⚡ Scaloni<br><span class="gr">Dashboard</span></h1>
+  <p class="land-sub">Connecte-toi avec Discord pour gérer tes serveurs, personnaliser chaque fonctionnalité et configurer le bot entièrement.</p>
+  <button class="btn-dlogin" id="login-btn">
     <svg viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.5 58.5 0 0045.7.9a40 40 0 00-1.8 3.6 54 54 0 00-16.2 0A37 37 0 0025.9.9 58.6 58.6 0 0011.4 5C1.6 19.4-1 33.5.3 47.4a58.9 58.9 0 0018 9.1 44.3 44.3 0 003.9-6.3 38.3 38.3 0 01-6.1-3 31.6 31.6 0 001.5-1.2 41.9 41.9 0 0036 0l1.5 1.2a38.4 38.4 0 01-6.2 3 44.2 44.2 0 003.9 6.3 58.7 58.7 0 0018-9.1c1.5-15.6-2.6-29.5-10.7-41.5zM23.7 38.9c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.4 3.2 6.4 7.2-2.9 7.2-6.4 7.2zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.4 3.2 6.4 7.2-2.8 7.2-6.4 7.2z" fill="#fff"/></svg>
     Connexion avec Discord
-  </a>
-  <div class="error-box" id="error-box"></div>
-  <p style="margin-top:16px;font-size:.78rem;color:var(--text3)">Seuls les serveurs où tu es admin ou propriétaire sont visibles</p>
+  </button>
+  <div class="land-err" id="land-err"></div>
+  <p style="margin-top:16px;font-size:.75rem;color:var(--text3)">Seuls les serveurs où tu es administrateur ou propriétaire sont visibles</p>
 </div>
 
-<!-- ══════════════ APP CONNECTÉ ══════════════════════════ -->
-<div id="app" style="display:none">
-  <div class="layout">
+<!-- APP -->
+<div id="app">
+<div class="layout">
 
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <div class="logo">
-          <div class="logo-icon">⚡</div>
-          <span class="logo-text">Scaloni</span>
-        </div>
-        <div class="profile-box">
-          <div class="avatar-wrap">
-            <div id="sb-avatar-wrap"></div>
-            <div class="online-dot"></div>
-          </div>
-          <div style="overflow:hidden;flex:1">
-            <div class="profile-name" id="sb-name">—</div>
-            <div class="profile-tag" id="sb-tag">—</div>
-          </div>
-        </div>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <div class="nav-label">Dashboard</div>
-          <button class="nav-btn active" id="nav-servers" onclick="goPage('servers',this)">
-            <span class="icon">🏠</span> Mes serveurs
-          </button>
-          <button class="nav-btn" id="nav-profile" onclick="goPage('profile',this)">
-            <span class="icon">👤</span> Mon profil
-          </button>
-        </div>
-        <div class="nav-section" id="guild-nav" style="display:none">
-          <div class="nav-label" id="guild-nav-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Serveur</div>
-          <button class="nav-btn" id="nav-overview" onclick="goPage('overview',this)"><span class="icon">📊</span> Vue d'ensemble</button>
-          <button class="nav-btn" id="nav-welcome"  onclick="goPage('welcome',this)"><span class="icon">👋</span> Bienvenue & Départ</button>
-          <button class="nav-btn" id="nav-automod"  onclick="goPage('automod',this)"><span class="icon">🛡️</span> AutoMod</button>
-          <button class="nav-btn" id="nav-economy"  onclick="goPage('economy',this)"><span class="icon">💰</span> Économie & Boutique</button>
-          <button class="nav-btn" id="nav-social"   onclick="goPage('social',this)"><span class="icon">📡</span> Réseaux Sociaux</button>
-        </div>
-      </nav>
-
-      <div class="sidebar-bottom">
-        <button class="nav-btn" onclick="logout()" style="color:var(--red)">
-          <span class="icon">🚪</span> Déconnexion
-        </button>
-      </div>
-    </aside>
-
-    <main class="main">
-
-      <!-- SERVERS -->
-      <div class="page active" id="page-servers">
-        <div class="page-header">
-          <h1>Mes serveurs</h1>
-          <p>Clique sur un serveur pour le configurer. Si Scaloni est absent, clique pour l'inviter.</p>
-        </div>
-        <div class="servers-grid" id="servers-grid"></div>
-      </div>
-
-      <!-- PROFILE -->
-      <div class="page" id="page-profile">
-        <div class="page-header"><h1>Mon profil</h1><p>Ton compte Discord connecté</p></div>
-        <div class="profile-big">
-          <div id="pf-avatar-wrap"></div>
-          <div>
-            <h2 id="pf-name" style="font-size:1.2rem;font-weight:700">—</h2>
-            <div id="pf-disc" style="font-size:.82rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px">—</div>
-            <div class="tag-row">
-              <span class="tag">🆔 <span id="pf-id">—</span></span>
-              <span class="tag" id="pf-guilds-tag">—</span>
-              <span class="tag" style="background:rgba(124,92,252,.1);color:var(--acc3);border-color:rgba(124,92,252,.3)">⚡ Scaloni connecté</span>
-            </div>
-          </div>
-        </div>
-        <div class="card" style="max-width:500px">
-          <div class="card-title">⚙️ Session</div>
-          <p style="font-size:.875rem;color:var(--text2);line-height:1.6">Ta session Discord est stockée localement dans le navigateur. Elle expire automatiquement après 7 jours ou lors de la déconnexion.</p>
-          <div style="margin-top:12px">
-            <button class="btn btn-danger" onclick="logout()">🚪 Se déconnecter</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- NO BOT -->
-      <div class="page" id="page-nobot">
-        <div class="breadcrumb">
-          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
-          <span>/</span><span id="bc-nobot" style="color:var(--text)">Serveur</span>
-        </div>
-        <div class="server-header-card">
-          <div class="server-header-icon" id="nb-icon"></div>
-          <div><h2 id="nb-name" style="font-size:1rem;font-weight:700">—</h2><p id="nb-id" style="font-size:.8rem;color:var(--text3)">—</p></div>
-        </div>
-        <div class="no-bot-box">
-          <div class="big-icon">🤖</div>
-          <h3>Scaloni n'est pas sur ce serveur</h3>
-          <p>Ajoute le bot pour débloquer la modération avancée, l'économie, les jeux, la détection de lives et bien plus.</p>
-          <button class="btn-invite" id="add-bot-btn">➕ Ajouter Scaloni à ce serveur</button>
-        </div>
-      </div>
-
-      <!-- OVERVIEW -->
-      <div class="page" id="page-overview">
-        <div class="breadcrumb">
-          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
-          <span>/</span><span id="bc-ov" style="color:var(--text)">Serveur</span><span>/</span><span>Vue d'ensemble</span>
-        </div>
-        <div class="server-header-card">
-          <div class="server-header-icon" id="ov-icon"></div>
-          <div>
-            <h2 id="ov-name" style="font-size:1rem;font-weight:700">—</h2>
-            <p id="ov-id" style="font-size:.8rem;color:var(--text3)">—</p>
-          </div>
-          <div class="server-header-actions">
-            <span class="btn btn-success">✅ Scaloni actif</span>
-          </div>
-        </div>
-        <div class="stats-row">
-          <div class="stat-card"><div class="num" id="ov-members">—</div><div class="lbl">Membres</div></div>
-          <div class="stat-card"><div class="num" id="ov-items">—</div><div class="lbl">Articles boutique</div></div>
-          <div class="stat-card"><div class="num" id="ov-monitors">—</div><div class="lbl">Surveillances</div></div>
-          <div class="stat-card"><div class="num" id="ov-prot">—</div><div class="lbl">Protections actives</div></div>
-        </div>
-        <div class="card">
-          <div class="card-title">🧭 Accès rapide</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-ghost" onclick="goPage('welcome', document.getElementById('nav-welcome'))">👋 Bienvenue</button>
-            <button class="btn btn-ghost" onclick="goPage('automod', document.getElementById('nav-automod'))">🛡️ AutoMod</button>
-            <button class="btn btn-ghost" onclick="goPage('economy', document.getElementById('nav-economy'))">💰 Économie</button>
-            <button class="btn btn-ghost" onclick="goPage('social',  document.getElementById('nav-social'))">📡 Réseaux Sociaux</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- WELCOME -->
-      <div class="page" id="page-welcome">
-        <div class="breadcrumb">
-          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
-          <span>/</span><span id="bc-wc" style="color:var(--text)">Serveur</span><span>/</span><span>Bienvenue & Départ</span>
-        </div>
-        <div class="page-header"><h1>👋 Bienvenue & Départ</h1><p>Messages envoyés quand un membre rejoint ou quitte le serveur</p></div>
-        <div class="cfg-notice">💡 La config est sauvegardée dans le navigateur et lue par le bot via <code>scaloni_config.json</code>. Après avoir sauvegardé ici, relance le bot.</div>
-        <div class="form-grid">
-          <div class="card">
-            <div class="card-title">🟢 Message de bienvenue</div>
-            <div class="form-group">
-              <label>ID du salon de bienvenue</label>
-              <input type="text" id="wc-ch" placeholder="Clic droit salon → Copier l'identifiant">
-            </div>
-            <div class="form-group">
-              <label>Message</label>
-              <textarea id="wc-msg" placeholder="Bienvenue {user} sur {server} ! 🎉 Tu es le {count}ème membre."></textarea>
-              <div class="form-hint">Variables : <code>{user}</code> mention · <code>{username}</code> pseudo · <code>{server}</code> nom · <code>{count}</code> nb membres</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">🔴 Message de départ</div>
-            <div class="form-group">
-              <label>ID du salon de départ</label>
-              <input type="text" id="lv-ch" placeholder="Clic droit salon → Copier l'identifiant">
-            </div>
-            <div class="form-group">
-              <label>Message</label>
-              <textarea id="lv-msg" placeholder="👋 {username} a quitté {server}."></textarea>
-              <div class="form-hint">Variables : <code>{user}</code> · <code>{username}</code> · <code>{server}</code></div>
-            </div>
-          </div>
-        </div>
-        <div class="save-bar">
-          <p>Enregistre puis copie le fichier <code>scaloni_config.json</code> généré dans le dossier du bot.</p>
-          <div style="display:flex;align-items:center;gap:12px">
-            <span class="save-ok" id="ok-welcome">✅ Sauvegardé !</span>
-            <button class="btn btn-primary" onclick="save('welcome')">Sauvegarder</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- AUTOMOD -->
-      <div class="page" id="page-automod">
-        <div class="breadcrumb">
-          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
-          <span>/</span><span id="bc-am" style="color:var(--text)">Serveur</span><span>/</span><span>AutoMod</span>
-        </div>
-        <div class="page-header"><h1>🛡️ AutoMod</h1><p>Modération automatique du serveur</p></div>
-        <div class="form-grid">
-          <div class="card">
-            <div class="card-title">🔒 Protections</div>
-            <div class="toggle-list">
-              <div class="toggle-row"><div><div class="t-name">🔗 Anti-Liens</div><div class="t-desc">Supprime les messages avec des URLs</div></div><button class="switch off" id="sw-anti_links" onclick="toggleSw(this,'anti_links')"></button></div>
-              <div class="toggle-row"><div><div class="t-name">📨 Anti-Invitations</div><div class="t-desc">Bloque les invitations Discord</div></div><button class="switch off" id="sw-anti_invites" onclick="toggleSw(this,'anti_invites')"></button></div>
-              <div class="toggle-row"><div><div class="t-name">🚫 Anti-Spam</div><div class="t-desc">Limite les envois rapides (5 msg/5s)</div></div><button class="switch off" id="sw-anti_spam" onclick="toggleSw(this,'anti_spam')"></button></div>
-              <div class="toggle-row"><div><div class="t-name">🔠 Anti-Majuscules</div><div class="t-desc">Bloque les messages &gt;70% caps</div></div><button class="switch off" id="sw-anti_caps" onclick="toggleSw(this,'anti_caps')"></button></div>
-              <div class="toggle-row"><div><div class="t-name">🔔 Anti-Mass-Mention</div><div class="t-desc">Bloque les mentions massives (5+)</div></div><button class="switch off" id="sw-anti_mention" onclick="toggleSw(this,'anti_mention')"></button></div>
-              <div class="toggle-row"><div><div class="t-name">🤐 Anti-Gros-Mots</div><div class="t-desc">Filtre la liste noire de mots</div></div><button class="switch off" id="sw-anti_badwords" onclick="toggleSw(this,'anti_badwords')"></button></div>
-            </div>
-          </div>
-          <div>
-            <div class="card" style="margin-bottom:14px">
-              <div class="card-title">🚫 Mots interdits</div>
-              <div class="form-group">
-                <label>Séparés par des virgules</label>
-                <textarea id="am-bad_words" placeholder="insulte1, insulte2, ..."></textarea>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">✅ Domaines toujours autorisés</div>
-              <div class="form-group">
-                <label>Séparés par des virgules</label>
-                <textarea id="am-whitelist" placeholder="youtube.com, twitch.tv, imgur.com"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="save-bar">
-          <p>Les toggles et listes sont sauvegardés ensemble.</p>
-          <div style="display:flex;align-items:center;gap:12px">
-            <span class="save-ok" id="ok-automod">✅ Sauvegardé !</span>
-            <button class="btn btn-primary" onclick="save('automod')">Sauvegarder</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ECONOMY -->
-      <div class="page" id="page-economy">
-        <div class="breadcrumb">
-          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
-          <span>/</span><span id="bc-ec" style="color:var(--text)">Serveur</span><span>/</span><span>Économie & Boutique</span>
-        </div>
-        <div class="page-header"><h1>💰 Économie & Boutique</h1><p>Monnaie personnalisée et articles</p></div>
-        <div class="form-grid">
-          <div class="card">
-            <div class="card-title">🪙 Monnaie</div>
-            <div class="form-group"><label>Nom de la monnaie</label><input type="text" id="ec-name" placeholder="Scaloni Coins"></div>
-            <div class="form-group"><label>Emoji</label><input type="text" id="ec-emoji" placeholder="🪙" maxlength="5"></div>
-            <div class="form-group"><label>ID du salon annonces level-up</label><input type="text" id="ec-lvlch" placeholder="(optionnel)"></div>
-            <div class="save-bar" style="margin-top:0">
-              <span class="save-ok" id="ok-economy">✅ Sauvegardé !</span>
-              <button class="btn btn-primary" onclick="save('economy')">Sauvegarder</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">🛒 Boutique</div>
-            <div class="item-list" id="shop-list"><div style="font-size:.82rem;color:var(--text3)">Aucun article.</div></div>
-            <div style="border-top:1px solid var(--border);padding-top:14px">
-              <div class="form-group"><label>Nom</label><input type="text" id="si-name" placeholder="Rôle VIP"></div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <div class="form-group"><label>Prix</label><input type="number" id="si-price" placeholder="500" min="1"></div>
-                <div class="form-group"><label>Emoji</label><input type="text" id="si-emoji" placeholder="🎁" maxlength="5"></div>
-              </div>
-              <div class="form-group"><label>Description</label><input type="text" id="si-desc" placeholder="Description courte"></div>
-              <button class="btn btn-primary" onclick="addItem()">➕ Ajouter l'article</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SOCIAL -->
-      <div class="page" id="page-social">
-        <div class="breadcrumb">
-          <button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button>
-          <span>/</span><span id="bc-sc" style="color:var(--text)">Serveur</span><span>/</span><span>Réseaux Sociaux</span>
-        </div>
-        <div class="page-header"><h1>📡 Réseaux Sociaux</h1><p>Notifications automatiques quand un créateur est en live ou poste</p></div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-title">📋 Surveillances actives</div>
-          <div class="item-list" id="monitor-list"><div style="font-size:.82rem;color:var(--text3)">Aucune surveillance.</div></div>
-        </div>
-        <div class="card">
-          <div class="card-title">➕ Ajouter une surveillance</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-            <div class="form-group"><label>Plateforme</label><select id="sm-plat"><option value="twitch">🟣 Twitch</option><option value="youtube">🔴 YouTube</option><option value="twitter">🐦 Twitter/X</option><option value="instagram">📸 Instagram</option><option value="tiktok">🎵 TikTok</option><option value="reddit">🤖 Reddit</option></select></div>
-            <div class="form-group"><label>Nom d'utilisateur</label><input type="text" id="sm-user" placeholder="ex: xqc"></div>
-            <div class="form-group"><label>ID du salon Discord</label><input type="text" id="sm-ch" placeholder="ex: 123456789..."></div>
-          </div>
-          <div class="form-group"><label>Message custom (optionnel)</label><input type="text" id="sm-msg" placeholder="{name} est en live ! {title} — {url}"><div class="form-hint">Variables : <code>{name}</code> <code>{title}</code> <code>{url}</code> <code>{game}</code></div></div>
-          <button class="btn btn-primary" onclick="addMonitor()">➕ Ajouter</button>
-        </div>
-        <div class="save-bar" style="margin-top:16px">
-          <p>La liste des surveillances est sauvegardée localement.</p>
-          <div style="display:flex;align-items:center;gap:12px">
-            <span class="save-ok" id="ok-social">✅ Sauvegardé !</span>
-            <button class="btn btn-primary" onclick="save('social')">Sauvegarder tout</button>
-          </div>
-        </div>
-      </div>
-
-    </main>
+<aside class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo"><div class="sb-logo-icon">⚡</div><span class="sb-logo-txt">Scaloni</span></div>
+    <div class="sb-profile" onclick="goPage('profile',document.getElementById('nav-profile'))">
+      <div class="avw"><div id="sb-av"></div><div class="av-dot"></div></div>
+      <div style="overflow:hidden;flex:1"><div class="sb-name" id="sb-name">—</div><div class="sb-tag" id="sb-tag">—</div></div>
+    </div>
   </div>
+  <nav class="sb-nav">
+    <div class="ns">
+      <div class="nl">Général</div>
+      <button class="nb active" id="nav-servers" onclick="goPage('servers',this)"><span class="ni">🏠</span>Mes serveurs</button>
+      <button class="nb" id="nav-profile" onclick="goPage('profile',this)"><span class="ni">👤</span>Mon profil</button>
+    </div>
+    <div class="ns" id="guild-nav" style="display:none">
+      <div class="nl" id="guild-nav-lbl" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Serveur</div>
+      <button class="nb" id="nav-overview"  onclick="goPage('overview',this)"><span class="ni">📊</span>Vue d'ensemble</button>
+      <button class="nb" id="nav-welcome"   onclick="goPage('welcome',this)"><span class="ni">👋</span>Bienvenue & Départ</button>
+      <button class="nb" id="nav-automod"   onclick="goPage('automod',this)"><span class="ni">🛡️</span>AutoMod</button>
+      <button class="nb" id="nav-economy"   onclick="goPage('economy',this)"><span class="ni">💰</span>Économie & Boutique</button>
+      <button class="nb" id="nav-social"    onclick="goPage('social',this)"><span class="ni">📡</span>Réseaux Sociaux</button>
+      <button class="nb" id="nav-levels"    onclick="goPage('levels',this)"><span class="ni">⭐</span>Niveaux & XP</button>
+      <button class="nb" id="nav-tickets"   onclick="goPage('tickets',this)"><span class="ni">🎫</span>Tickets</button>
+      <button class="nb" id="nav-logs"      onclick="goPage('logs',this)"><span class="ni">📋</span>Logs</button>
+    </div>
+  </nav>
+  <div class="sb-bot">
+    <button class="nb" onclick="logout()" style="color:var(--red)"><span class="ni">🚪</span>Déconnexion</button>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- SERVERS -->
+<div class="page active" id="page-servers"><div class="pi">
+  <div class="ph"><h1>🏠 Mes serveurs</h1><p>Serveurs où tu es admin ou propriétaire. Le bot est détecté via la config locale — clique sur un serveur pour configurer.</p></div>
+  <div class="sgrid" id="servers-grid"><div class="spinner"></div></div>
+</div></div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile"><div class="pi">
+  <div class="ph"><h1>👤 Mon profil</h1></div>
+  <div class="card" style="display:flex;align-items:center;gap:18px;margin-bottom:14px">
+    <div id="pf-av"></div>
+    <div>
+      <div style="font-size:1.2rem;font-weight:700" id="pf-name">—</div>
+      <div style="font-size:.8rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px" id="pf-disc">—</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+        <span class="bdg bp" id="pf-gbadge">— serveurs</span>
+        <span class="bdg bg">⚡ Scaloni connecté</span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="max-width:480px">
+    <div class="ct">🔐 Session</div>
+    <p style="font-size:.84rem;color:var(--text2);line-height:1.65">Session stockée dans le navigateur. Expire dans 7 jours. Aucune donnée envoyée à un tiers.</p>
+    <div style="margin-top:12px"><button class="btn btn-d" onclick="logout()">🚪 Déconnexion</button></div>
+  </div>
+</div></div>
+
+<!-- NO BOT -->
+<div class="page" id="page-nobot"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-nb" style="color:var(--text)">—</span></div>
+  <div class="ghdr"><div class="gh-icon" id="nb-icon"></div><div><div class="gh-name" id="nb-name">—</div><div class="gh-id" id="nb-id">—</div></div></div>
+  <div class="nobot">
+    <span class="bi">🤖</span>
+    <h3>Scaloni n'est pas sur ce serveur</h3>
+    <p>Ajoute le bot pour accéder à toutes les fonctionnalités : modération avancée, économie personnalisée, jeux, réseaux sociaux et plus.</p>
+    <button class="btn-addbot" id="add-bot-btn">➕ Ajouter Scaloni à ce serveur</button>
+    <p style="margin-top:14px;font-size:.75rem;color:var(--text3)">Après avoir ajouté, clique de nouveau sur ce serveur pour accéder à la configuration.</p>
+  </div>
+</div></div>
+
+<!-- OVERVIEW -->
+<div class="page" id="page-overview"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-ov" style="color:var(--text)">—</span></div>
+  <div class="ghdr">
+    <div class="gh-icon" id="ov-icon"></div>
+    <div><div class="gh-name" id="ov-name">—</div><div class="gh-id" id="ov-id">—</div></div>
+    <div class="gh-actions"><span class="bdg bg">✅ Scaloni actif</span></div>
+  </div>
+  <div class="stats4">
+    <div class="stat"><div class="n" id="st-prot">0/6</div><div class="l">Protections</div></div>
+    <div class="stat"><div class="n" id="st-items">0</div><div class="l">Articles boutique</div></div>
+    <div class="stat"><div class="n" id="st-mon">0</div><div class="l">Surveillances</div></div>
+    <div class="stat"><div class="n" id="st-rwd">0</div><div class="l">Récompenses XP</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">🧭 Navigation rapide</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-g" onclick="goPage('welcome',document.getElementById('nav-welcome'))">👋 Bienvenue</button>
+      <button class="btn btn-g" onclick="goPage('automod',document.getElementById('nav-automod'))">🛡️ AutoMod</button>
+      <button class="btn btn-g" onclick="goPage('economy',document.getElementById('nav-economy'))">💰 Économie</button>
+      <button class="btn btn-g" onclick="goPage('social',document.getElementById('nav-social'))">📡 Réseaux Sociaux</button>
+      <button class="btn btn-g" onclick="goPage('levels',document.getElementById('nav-levels'))">⭐ Niveaux</button>
+      <button class="btn btn-g" onclick="goPage('tickets',document.getElementById('nav-tickets'))">🎫 Tickets</button>
+      <button class="btn btn-g" onclick="goPage('logs',document.getElementById('nav-logs'))">📋 Logs</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- WELCOME -->
+<div class="page" id="page-welcome"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-wc" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>👋 Bienvenue & Départ</h1><p>Messages personnalisés avec embed Discord complet : couleur, titre, description, miniature, image, boutons.</p></div>
+  <div class="itabs"><button class="itab active" onclick="switchTab(this,'tab-join')">📥 Arrivée</button><button class="itab" onclick="switchTab(this,'tab-leave')">📤 Départ</button></div>
+
+  <div id="tab-join">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="ct">⚙️ Configuration</div>
+          <div class="fg"><label>ID du salon de bienvenue</label><input type="text" id="wc-ch" placeholder="Clic droit sur le salon → Copier l'identifiant"><div class="fhint">Active le mode développeur : Paramètres Discord → Avancé → Mode développeur</div></div>
+          <div class="fg"><label>ID du rôle à mentionner (optionnel)</label><input type="text" id="wc-role" placeholder="Laisse vide pour aucune mention"></div>
+        </div>
+        <div class="card">
+          <div class="ct">🎨 Embed de bienvenue</div>
+          <div class="fg"><label>Couleur</label>
+            <div class="crow"><input type="color" id="wc-color" value="#7c5cfc" oninput="updateWcPreview()"><div class="cpresets" id="wc-cpresets"></div></div>
+          </div>
+          <div class="fg"><label>Titre</label><input type="text" id="wc-title" placeholder="🎉 Bienvenue !" oninput="updateWcPreview()"></div>
+          <div class="fg"><label>Description</label><textarea id="wc-desc" placeholder="Bienvenue {user} sur **{server}** !&#10;Tu es le **{count}**ème membre 🎊" oninput="updateWcPreview()"></textarea><div class="fhint">Variables : <code>{user}</code> mention · <code>{username}</code> pseudo · <code>{server}</code> nom · <code>{count}</code> nb membres</div></div>
+          <div class="r2">
+            <div class="fg"><label>Auteur</label><input type="text" id="wc-author" placeholder="ex: Scaloni Bot" oninput="updateWcPreview()"></div>
+            <div class="fg"><label>Footer</label><input type="text" id="wc-footer" placeholder="Bienvenue !" oninput="updateWcPreview()"></div>
+          </div>
+          <div class="r2">
+            <div class="fg"><label>Image principale (URL)</label><input type="text" id="wc-image" placeholder="https://..." oninput="updateWcPreview()"></div>
+            <div class="fg"><label>Miniature URL ou <code>{avatar}</code></label><input type="text" id="wc-thumb" placeholder="{avatar} ou https://..." oninput="updateWcPreview()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">🔘 Boutons</div>
+          <div id="wc-btns-list"></div>
+          <button class="btn btn-g btn-sm" onclick="addBtn('wc')">➕ Ajouter un bouton</button>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="position:sticky;top:20px">
+          <div class="ct">👁️ Aperçu en direct</div>
+          <div style="background:#313338;border-radius:8px;padding:12px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:38px;height:38px;border-radius:50%;background:var(--acc);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px">⚡</div>
+              <div style="flex:1">
+                <div style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:4px">Scaloni <span style="background:#5865f2;color:#fff;font-size:.6rem;padding:1px 5px;border-radius:3px">BOT</span></div>
+                <div class="ep" id="ep-wc" style="border-left-color:#7c5cfc">
+                  <img class="ep-thumb" id="ep-wc-thumb">
+                  <div class="ep-title" id="ep-wc-title">🎉 Bienvenue !</div>
+                  <div class="ep-desc" id="ep-wc-desc">Bienvenue sur le serveur !</div>
+                  <img class="ep-img" id="ep-wc-img">
+                  <div class="ep-btns" id="ep-wc-btns"></div>
+                  <div class="ep-footer" id="ep-wc-footer" style="display:none"><div style="width:14px;height:14px;border-radius:50%;background:var(--s3);flex-shrink:0"></div><span id="ep-wc-footer-txt"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sbar"><p>Sauvegarde → téléchargement auto de <code>scaloni_config.json</code> à placer dans le dossier du bot.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-welcome">✅ Sauvegardé !</span><button class="btn btn-p" onclick="save('welcome')">💾 Sauvegarder & Exporter</button></div></div>
+  </div>
+
+  <div id="tab-leave" style="display:none">
+    <div class="card">
+      <div class="ct">Message de départ</div>
+      <div class="r2">
+        <div class="fg"><label>ID du salon</label><input type="text" id="lv-ch" placeholder="ID du salon de départ"></div>
+        <div class="fg"><label>Couleur embed</label><input type="color" id="lv-color" value="#ef4444"></div>
+      </div>
+      <div class="fg"><label>Titre</label><input type="text" id="lv-title" placeholder="👋 Au revoir !"></div>
+      <div class="fg"><label>Description</label><textarea id="lv-desc" placeholder="{username} a quitté {server}. Bonne continuation !"></textarea><div class="fhint">Variables : <code>{user}</code> <code>{username}</code> <code>{server}</code></div></div>
+      <div class="fg"><label>Footer</label><input type="text" id="lv-footer" placeholder=""></div>
+    </div>
+    <div class="sbar"><p>Message de départ.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-leave">✅</span><button class="btn btn-p" onclick="save('leave')">💾 Sauvegarder</button></div></div>
+  </div>
+</div></div>
+
+<!-- AUTOMOD -->
+<div class="page" id="page-automod"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-am" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>🛡️ AutoMod</h1><p>Modération automatique fine. Chaque protection est toggleable et configurable indépendamment.</p></div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="ct">🔒 Protections</div>
+        <div class="tl">
+          <div class="tr-row"><div><div class="tr-name">🔗 Anti-Liens</div><div class="tr-desc">Supprime les URLs non autorisées</div></div><button class="sw off" id="sw-anti_links" onclick="toggle(this,'anti_links')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">📨 Anti-Invitations</div><div class="tr-desc">Bloque les invitations Discord externes</div></div><button class="sw off" id="sw-anti_invites" onclick="toggle(this,'anti_invites')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">🚫 Anti-Spam</div><div class="tr-desc">Limite les messages rapides</div></div><button class="sw off" id="sw-anti_spam" onclick="toggle(this,'anti_spam')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">🔠 Anti-Majuscules</div><div class="tr-desc">Bloque les messages trop caps</div></div><button class="sw off" id="sw-anti_caps" onclick="toggle(this,'anti_caps')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">🔔 Anti-Mass-Mention</div><div class="tr-desc">Bloque les mentions massives (5+)</div></div><button class="sw off" id="sw-anti_mention" onclick="toggle(this,'anti_mention')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">🤐 Anti-Gros-Mots</div><div class="tr-desc">Filtre la liste noire de mots</div></div><button class="sw off" id="sw-anti_badwords" onclick="toggle(this,'anti_badwords')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">👤 Anti-Pseudo Interdit</div><div class="tr-desc">Sanctionne les pseudos problématiques</div></div><button class="sw off" id="sw-anti_badname" onclick="toggle(this,'anti_badname')"></button></div>
+          <div class="tr-row"><div><div class="tr-name">🖼️ Anti-Fichiers</div><div class="tr-desc">Bloque les pièces jointes dans certains salons</div></div><button class="sw off" id="sw-anti_files" onclick="toggle(this,'anti_files')"></button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">⚡ Seuils & Sanctions</div>
+        <div class="r2">
+          <div class="fg"><label>Seuil spam (msg/5s)</label><input type="number" id="am-spam" value="5" min="2" max="20"></div>
+          <div class="fg"><label>Seuil caps (%)</label><input type="number" id="am-caps" value="70" min="30" max="100"></div>
+        </div>
+        <div class="fg"><label>Sanction automatique</label>
+          <select id="am-action">
+            <option value="delete">Supprimer le message</option>
+            <option value="warn">Supprimer + Avertir</option>
+            <option value="mute">Supprimer + Mute 5min</option>
+            <option value="kick">Supprimer + Kick après 3 warns</option>
+          </select>
+        </div>
+        <div class="fg"><label>Salon de logs AutoMod (ID)</label><input type="text" id="am-log-ch" placeholder="ID du salon"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">🚫 Listes noires</div>
+        <div class="fg"><label>Mots interdits (un par ligne ou virgule)</label><textarea id="am-badwords" style="min-height:90px" placeholder="insulte1&#10;insulte2, insulte3"></textarea></div>
+        <div class="fg"><label>Regex avancées (une par ligne)</label><textarea id="am-regex" style="min-height:56px" placeholder="\bm+o+t\b"></textarea><div class="fhint">Expressions régulières pour les cas complexes</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">✅ Whitelist & Exceptions</div>
+        <div class="fg"><label>Domaines autorisés (virgule)</label><textarea id="am-whitelist" style="min-height:56px" placeholder="youtube.com, twitch.tv, imgur.com"></textarea></div>
+        <div class="fg"><label>IDs de rôles exemptés (virgule)</label><input type="text" id="am-exempt-roles" placeholder="ID rôle admin, ID rôle modo"></div>
+        <div class="fg"><label>IDs de salons exemptés</label><input type="text" id="am-exempt-ch" placeholder="IDs des salons sans automod"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sbar"><p>Toute la config AutoMod sauvegardée ensemble.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-automod">✅</span><button class="btn btn-p" onclick="save('automod')">💾 Sauvegarder</button></div></div>
+</div></div>
+
+<!-- ECONOMY -->
+<div class="page" id="page-economy"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-ec" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>💰 Économie & Boutique</h1><p>Monnaie custom, boutique avec rôles, rôles temporaires, objets personnalisés, Nitro et bonus de coins.</p></div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="ct">🪙 Monnaie du serveur</div>
+        <div class="r2">
+          <div class="fg"><label>Nom de la monnaie</label><input type="text" id="ec-name" placeholder="Scaloni Coins"></div>
+          <div class="fg"><label>Emoji</label><input type="text" id="ec-emoji" placeholder="🪙" maxlength="8"></div>
+        </div>
+        <div class="r2">
+          <div class="fg"><label>Gain daily (coins)</label><input type="number" id="ec-daily" value="100" min="1"></div>
+          <div class="fg"><label>Gain work/heure (coins)</label><input type="number" id="ec-work" value="50" min="1"></div>
+        </div>
+        <div class="fg"><label>ID salon annonces level-up</label><input type="text" id="ec-lvl-ch" placeholder="(optionnel)"></div>
+        <div class="sbar" style="margin-top:0"><span class="sok" id="ok-economy">✅</span><button class="btn btn-p" onclick="save('economy')">💾 Sauvegarder</button></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">🛒 Boutique — Articles</div>
+        <div class="shlist" id="shop-list"><div style="font-size:.82rem;color:var(--text3)">Aucun article.</div></div>
+        <div style="border-top:1px solid var(--border);padding-top:14px">
+          <div class="fg"><label>Type d'article</label>
+            <select id="si-type" onchange="updateShopForm()">
+              <option value="custom">🎁 Objet personnalisé</option>
+              <option value="role">🎭 Rôle permanent</option>
+              <option value="temp_role">⏳ Rôle temporaire</option>
+              <option value="nitro">💎 Discord Nitro</option>
+              <option value="coins">🪙 Bonus de coins</option>
+            </select>
+          </div>
+          <div class="r2">
+            <div class="fg"><label>Nom</label><input type="text" id="si-name" placeholder="ex: Rôle VIP"></div>
+            <div class="fg"><label>Emoji</label><input type="text" id="si-emoji" placeholder="🎁" maxlength="8"></div>
+          </div>
+          <div class="fg"><label>Description</label><input type="text" id="si-desc" placeholder="Description visible dans !shop"></div>
+          <div class="r3">
+            <div class="fg"><label>Prix</label><input type="number" id="si-price" placeholder="500" min="1"></div>
+            <div class="fg"><label>Stock (-1 = ∞)</label><input type="number" id="si-stock" value="-1"></div>
+            <div class="fg" id="si-dur-wrap" style="display:none"><label>Durée (jours)</label><input type="number" id="si-duration" value="30" min="1"></div>
+          </div>
+          <div class="fg" id="si-role-wrap" style="display:none"><label>ID du rôle Discord</label><input type="text" id="si-role" placeholder="ID du rôle à attribuer"></div>
+          <div class="fg" id="si-bonus-wrap" style="display:none"><label>Montant bonus coins</label><input type="number" id="si-bonus" value="500" min="1"></div>
+          <button class="btn btn-p btn-full" onclick="addShopItem()">➕ Ajouter l'article</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- SOCIAL -->
+<div class="page" id="page-social"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-sc" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>📡 Réseaux Sociaux</h1><p>Notifications auto : embed entièrement personnalisé avec miniature vidéo, bouton lien, mention de rôle, image de preview.</p></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct">📋 Surveillances actives</div>
+    <div class="mlist" id="monitor-list"><div style="font-size:.82rem;color:var(--text3)">Aucune surveillance.</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">➕ Nouvelle surveillance</div>
+    <div class="r3">
+      <div class="fg"><label>Plateforme</label>
+        <select id="sm-plat" onchange="updateSmDefaults()">
+          <option value="twitch">🟣 Twitch</option><option value="youtube">🔴 YouTube</option>
+          <option value="twitter">🐦 Twitter/X</option><option value="instagram">📸 Instagram</option>
+          <option value="tiktok">🎵 TikTok</option><option value="reddit">🤖 Reddit</option>
+        </select>
+      </div>
+      <div class="fg"><label>Nom d'utilisateur / chaîne</label><input type="text" id="sm-user" placeholder="ex: xqc"></div>
+      <div class="fg"><label>ID salon Discord</label><input type="text" id="sm-ch" placeholder="ID du salon"></div>
+    </div>
+    <div class="fg"><label>ID rôle à mentionner (optionnel)</label><input type="text" id="sm-role" placeholder="Laisse vide = pas de mention"></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:6px">
+      <div style="font-size:.82rem;font-weight:600;margin-bottom:12px;color:var(--text2)">🎨 Embed personnalisé</div>
+      <div class="eb">
+        <div>
+          <div class="fg"><label>Couleur</label>
+            <div class="crow"><input type="color" id="sm-color" value="#ef4444" oninput="updateSmPreview()"><div class="cpresets" id="sm-cpresets"></div></div>
+          </div>
+          <div class="fg"><label>Titre</label><input type="text" id="sm-title" placeholder="🔴 {name} est en LIVE !" oninput="updateSmPreview()"><div class="fhint">Variables : <code>{name}</code> <code>{title}</code> <code>{game}</code> <code>{url}</code> <code>{viewers}</code></div></div>
+          <div class="fg"><label>Description</label><textarea id="sm-desc" placeholder="**{title}**&#10;Viens regarder ! 👀" oninput="updateSmPreview()"></textarea></div>
+          <div class="r2">
+            <div class="fg"><label>Miniature</label>
+              <select id="sm-thumb" onchange="updateSmPreview()">
+                <option value="auto">Auto (miniature vidéo/stream)</option>
+                <option value="avatar">Avatar du compte</option>
+                <option value="none">Aucune</option>
+                <option value="custom">URL personnalisée</option>
+              </select>
+            </div>
+            <div class="fg" id="sm-thumb-wrap" style="display:none"><label>URL miniature</label><input type="text" id="sm-thumb-url" placeholder="https://..." oninput="updateSmPreview()"></div>
+          </div>
+          <div class="r2">
+            <div class="fg"><label>Grande image</label>
+              <select id="sm-image" onchange="updateSmPreview()">
+                <option value="none">Non</option>
+                <option value="auto">Oui (aperçu stream)</option>
+                <option value="custom">URL personnalisée</option>
+              </select>
+            </div>
+            <div class="fg" id="sm-img-wrap" style="display:none"><label>URL image</label><input type="text" id="sm-image-url" placeholder="https://..." oninput="updateSmPreview()"></div>
+          </div>
+          <div class="fg"><label>Texte du bouton lien (vide = pas de bouton)</label><input type="text" id="sm-btn" placeholder="▶ Regarder le live" oninput="updateSmPreview()"></div>
+          <div class="fg"><label>Footer</label><input type="text" id="sm-footer" placeholder="Notifications • {platform}" oninput="updateSmPreview()"></div>
+        </div>
+        <div>
+          <div class="card" style="position:sticky;top:20px;padding:14px">
+            <div class="ct" style="margin-bottom:10px">👁️ Aperçu</div>
+            <div style="background:#313338;border-radius:8px;padding:11px">
+              <div style="display:flex;gap:9px;align-items:flex-start">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--acc);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px">⚡</div>
+                <div style="flex:1">
+                  <div style="font-size:.8rem;font-weight:700;color:#fff;margin-bottom:3px">Scaloni <span style="background:#5865f2;color:#fff;font-size:.58rem;padding:1px 5px;border-radius:3px">BOT</span></div>
+                  <div style="font-size:.78rem;color:#dbdee1;margin-bottom:5px"><span class="ep-mention" id="sp-mention" style="display:none">@Role</span></div>
+                  <div class="ep" id="ep-sm" style="border-left-color:#ef4444">
+                    <img class="ep-thumb" id="ep-sm-thumb">
+                    <div class="ep-title" id="ep-sm-title">🔴 xqc est en LIVE !</div>
+                    <div class="ep-desc" id="ep-sm-desc">**Just Chatting**</div>
+                    <img class="ep-img" id="ep-sm-img">
+                    <div class="ep-btns" id="ep-sm-btns"></div>
+                    <div class="ep-footer" id="ep-sm-footer" style="display:none"><div style="width:14px;height:14px;border-radius:50%;background:var(--s3)"></div><span id="ep-sm-footer-txt"></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-p" onclick="addMonitor()">➕ Ajouter la surveillance</button></div>
+  </div>
+  <div class="sbar" style="margin-top:14px"><p>Config sauvegardée localement et exportée.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-social">✅</span><button class="btn btn-p" onclick="save('social')">💾 Sauvegarder tout</button></div></div>
+</div></div>
+
+<!-- LEVELS -->
+<div class="page" id="page-levels"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-lv" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>⭐ Niveaux & XP</h1><p>XP automatique à chaque message, annonces customisées et récompenses par niveau (rôles + coins).</p></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">⚙️ Configuration XP</div>
+      <div class="r2">
+        <div class="fg"><label>XP min/message</label><input type="number" id="lv-min" value="5" min="1"></div>
+        <div class="fg"><label>XP max/message</label><input type="number" id="lv-max" value="15" min="1"></div>
+      </div>
+      <div class="fg"><label>Cooldown entre gains (secondes)</label><input type="number" id="lv-cooldown" value="60" min="0"></div>
+      <div class="fg"><label>ID salon annonces level-up</label><input type="text" id="lv-ch" placeholder="Vide = même salon que le message"></div>
+      <div class="fg"><label>Message de level-up</label><textarea id="lv-msg" placeholder="⭐ {user} passe au niveau **{level}** ! +{reward} {emoji}"></textarea><div class="fhint">Variables : <code>{user}</code> <code>{level}</code> <code>{reward}</code> <code>{emoji}</code></div></div>
+      <div class="tr-row" style="border:none;padding:8px 0 0"><div><div class="tr-name">Annoncer les level-up</div></div><button class="sw on" id="sw-lv-announce" onclick="toggle(this,'lv_announce')"></button></div>
+      <div class="tr-row" style="border:none;padding:8px 0 0"><div><div class="tr-name">Récompenses coins à chaque niveau</div></div><button class="sw on" id="sw-lv-rewards" onclick="toggle(this,'lv_rewards')"></button></div>
+    </div>
+    <div class="card">
+      <div class="ct">🎁 Récompenses par niveau</div>
+      <div id="lvl-rwd-list" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px"><div style="font-size:.78rem;color:var(--text3)">Aucune récompense.</div></div>
+      <div class="r3">
+        <div class="fg"><label>Niveau</label><input type="number" id="lv-rw-level" placeholder="5" min="1"></div>
+        <div class="fg"><label>ID Rôle</label><input type="text" id="lv-rw-role" placeholder="ID du rôle"></div>
+        <div class="fg"><label>Coins bonus</label><input type="number" id="lv-rw-coins" value="0" min="0"></div>
+      </div>
+      <button class="btn btn-g btn-sm" onclick="addLvlRwd()">➕ Ajouter</button>
+    </div>
+  </div>
+  <div class="sbar"><p>Config niveaux & récompenses.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-levels">✅</span><button class="btn btn-p" onclick="save('levels')">💾 Sauvegarder</button></div></div>
+</div></div>
+
+<!-- TICKETS -->
+<div class="page" id="page-tickets"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-tk" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>🎫 Tickets</h1><p>Panel de support avec bouton Discord, salons privés automatiques, assignation modérateur et logs.</p></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">⚙️ Configuration</div>
+      <div class="fg"><label>ID salon pour le panel (bouton)</label><input type="text" id="tk-panel-ch" placeholder="ID du salon"></div>
+      <div class="fg"><label>ID catégorie pour les tickets</label><input type="text" id="tk-cat" placeholder="ID de la catégorie Discord"></div>
+      <div class="fg"><label>ID rôle support (accès auto)</label><input type="text" id="tk-role" placeholder="ID du rôle modérateur"></div>
+      <div class="fg"><label>ID salon de logs tickets</label><input type="text" id="tk-logs" placeholder="ID du salon"></div>
+      <div class="tr-row" style="border:none;padding:8px 0 0"><div><div class="tr-name">Sauvegarder transcription à la fermeture</div></div><button class="sw on" id="sw-tk-trans" onclick="toggle(this,'tk_transcript')"></button></div>
+    </div>
+    <div class="card">
+      <div class="ct">🎨 Message du panel</div>
+      <div class="fg"><label>Titre</label><input type="text" id="tk-title" value="🎫 Support — Créer un ticket"></div>
+      <div class="fg"><label>Description</label><textarea id="tk-desc">Clique sur le bouton pour ouvrir un ticket privé.&#10;⏱️ Réponse sous 24h</textarea></div>
+      <div class="r2">
+        <div class="fg"><label>Couleur embed</label><input type="color" id="tk-color" value="#7c5cfc"></div>
+        <div class="fg"><label>Label du bouton</label><input type="text" id="tk-btn" value="📩 Créer un ticket"></div>
+      </div>
+      <div class="fg"><label>Message de bienvenue dans le ticket</label><textarea id="tk-welcome">Bienvenue {user} ! Décris ton problème et l'équipe te répondra.</textarea><div class="fhint"><code>{user}</code> mention du membre</div></div>
+    </div>
+  </div>
+  <div class="sbar"><p>Config tickets.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-tickets">✅</span><button class="btn btn-p" onclick="save('tickets')">💾 Sauvegarder</button></div></div>
+</div></div>
+
+<!-- LOGS -->
+<div class="page" id="page-logs"><div class="pi">
+  <div class="bc"><button onclick="goPage('servers',document.getElementById('nav-servers'))">← Mes serveurs</button><span>/</span><span id="bc-lg" style="color:var(--text)">—</span></div>
+  <div class="ph"><h1>📋 Logs</h1><p>Définis quel salon reçoit chaque type d'événement. Laisse vide pour désactiver.</p></div>
+  <div class="g2">
+    <div class="card"><div class="ct">🛡️ Modération</div>
+      <div class="fg"><label>Logs modération (ban, kick, mute, warn)</label><input type="text" id="lg-mod" placeholder="ID du salon"></div>
+      <div class="fg"><label>Logs AutoMod (suppressions auto)</label><input type="text" id="lg-automod" placeholder="ID du salon"></div>
+      <div class="fg"><label>Logs sanctions</label><input type="text" id="lg-sanct" placeholder="ID du salon"></div>
+    </div>
+    <div class="card"><div class="ct">👥 Membres</div>
+      <div class="fg"><label>Arrivées / Départs</label><input type="text" id="lg-members" placeholder="ID du salon"></div>
+      <div class="fg"><label>Changements pseudos / rôles</label><input type="text" id="lg-profile" placeholder="ID du salon"></div>
+      <div class="fg"><label>Connexions vocales</label><input type="text" id="lg-voice" placeholder="ID du salon"></div>
+    </div>
+    <div class="card"><div class="ct">💬 Messages</div>
+      <div class="fg"><label>Messages supprimés</label><input type="text" id="lg-del" placeholder="ID du salon"></div>
+      <div class="fg"><label>Messages modifiés</label><input type="text" id="lg-edit" placeholder="ID du salon"></div>
+    </div>
+    <div class="card"><div class="ct">💰 Économie</div>
+      <div class="fg"><label>Transactions boutique</label><input type="text" id="lg-shop" placeholder="ID du salon"></div>
+      <div class="fg"><label>Level-up</label><input type="text" id="lg-lvl" placeholder="ID du salon"></div>
+    </div>
+  </div>
+  <div class="sbar"><p>Config logs.</p><div style="display:flex;align-items:center;gap:10px"><span class="sok" id="ok-logs">✅</span><button class="btn btn-p" onclick="save('logs')">💾 Sauvegarder</button></div></div>
+</div></div>
+
+</main>
 </div>
-
-<div class="toast" id="toast"></div>
-
-<!-- ═══════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════ -->
+</div>
+<div id="toast"></div>
 <script>
+
+// ════════════════════════════════
+// REMPLACE TON CLIENT ID ICI
+// discord.com/developers -> ton app -> General Information -> Application ID
+// ════════════════════════════════
 const CLIENT_ID = "1454832858865733692";
 
-// ───────────────────────────────────────────
-// URL de redirection : doit correspondre
-// EXACTEMENT à ce que tu as mis dans le
-// portail Discord → OAuth2 → Redirects
-// Exemple : file:///C:/Users/.../scaloni_site.html
-// OU       : http://localhost:8080 si tu utilises
-//            un serveur local (Live Server PyCharm)
-// ───────────────────────────────────────────
-const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
-const DISCORD_API  = "https://discord.com/api/v10";
-const STORAGE_KEY  = "scaloni_session";
-const CONFIG_KEY   = "scaloni_config";
+const DAPI = "https://discord.com/api/v10";
+const SK   = "scaloni_s";
+const CK   = "scaloni_c";
+const REDIRECT_URI = window.location.href.split("?")[0].split("#")[0];
 
-// ── STATE ─────────────────────────────────
-let USER    = null;
-let GUILDS  = [];
-let CURRENT = null;  // guild courante
-let BOT_GUILDS = {}; // {guildId: true}
-let CFG     = {};    // config locale
+let USER=null, GUILDS=[], CUR=null, CFG={}, TOKEN=null;
 
-// ── INIT ──────────────────────────────────
-window.addEventListener('load', async () => {
-  // 1. Récupérer le token dans l'URL (après redirect OAuth2)
-  const hash   = new URLSearchParams(window.location.hash.slice(1));
-  const search = new URLSearchParams(window.location.search);
-  const token  = hash.get('access_token') || search.get('access_token');
-  const error  = hash.get('error')        || search.get('error');
+function xss(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function validToken(t){ return typeof t==="string" && /^[A-Za-z0-9_\-\.]{50,}$/.test(t); }
+function validId(id){ return typeof id==="string" && /^\d{17,20}$/.test(id); }
+function isAdmin(gid){ return GUILDS.some(g=>g.id===gid); }
 
-  if (error) {
-    showLanding(error === 'access_denied' ? 'Connexion annulée.' : 'Erreur : ' + error);
-    return done();
+window.addEventListener("load", async()=>{
+  CFG = safeJ(localStorage.getItem(CK),{});
+  const hash = new URLSearchParams(window.location.hash.slice(1));
+  const sp   = new URLSearchParams(window.location.search);
+  const tok  = hash.get("access_token")||sp.get("access_token");
+  const err  = hash.get("error")||sp.get("error");
+  if(err){ showLanding(err==="access_denied"?"Connexion annulee.":"Erreur: "+xss(err)); return done(); }
+  if(tok){
+    if(!validToken(tok)){ showLanding("Token invalide."); return done(); }
+    const exp = parseInt(hash.get("expires_in")||"604800");
+    saveS({t:tok, e:Date.now()+exp*1000});
+    window.history.replaceState({},"",window.location.pathname);
   }
-
-  if (token) {
-    // Nettoie l'URL
-    window.history.replaceState({}, '', window.location.pathname);
-    const expIn = parseInt(hash.get('expires_in') || '604800');
-    saveSession({ access_token: token, expires: Date.now() + expIn * 1000 });
-  }
-
-  // 2. Vérifier session existante
-  const session = loadSession();
-  if (!session) { showLanding(); return done(); }
-  if (Date.now() > session.expires) { clearSession(); showLanding('Session expirée, reconnecte-toi.'); return done(); }
-
-  // 3. Charger l'utilisateur et ses guildes
-  try {
-    await loadUser(session.access_token);
-    showApp();
-  } catch (e) {
-    clearSession();
-    showLanding('Session invalide, reconnecte-toi.');
-  }
+  const s = loadS();
+  if(!s){ showLanding(); return done(); }
+  if(Date.now()>s.e){ clearS(); showLanding("Session expiree."); return done(); }
+  TOKEN = s.t;
+  try{ await loadUser(); showApp(); }
+  catch(e){ clearS(); showLanding("Session invalide, reconnecte-toi."); }
   done();
 });
 
-function done() {
-  const ld = document.getElementById('loading');
-  ld.style.opacity = '0';
-  setTimeout(() => ld.style.display = 'none', 300);
+function done(){
+  const ld=document.getElementById("loading");
+  ld.classList.add("out");
+  setTimeout(()=>ld.style.display="none",400);
 }
 
-// ── AUTH ──────────────────────────────────
-function buildLoginURL() {
-  const params = new URLSearchParams({
-    client_id:     CLIENT_ID,
-    redirect_uri:  REDIRECT_URI,
-    response_type: 'token',
-    scope:         'identify guilds',
-  });
-  return 'https://discord.com/oauth2/authorize?' + params.toString();
-}
-
-document.getElementById('login-btn').href = '#';
-document.getElementById('login-btn').addEventListener('click', e => {
-  e.preventDefault();
-  if (CLIENT_ID === "TON_CLIENT_ID_ICI") {
-    showError("⚠️ Remplace TON_CLIENT_ID_ICI par ton vrai Client ID dans scaloni_site.html (ligne ~420)");
+document.getElementById("login-btn").addEventListener("click",()=>{
+  if(CLIENT_ID==="TON_CLIENT_ID_ICI"){
+    showLandErr("Remplace CLIENT_ID dans scaloni_site.html (debut du script)");
     return;
   }
-  window.location.href = buildLoginURL();
+  const u=new URL("https://discord.com/oauth2/authorize");
+  u.searchParams.set("client_id",CLIENT_ID);
+  u.searchParams.set("redirect_uri",REDIRECT_URI);
+  u.searchParams.set("response_type","token");
+  u.searchParams.set("scope","identify guilds");
+  window.location.href=u.toString();
 });
 
-async function loadUser(token) {
-  const [userData, guildsData] = await Promise.all([
-    discordFetch('/users/@me', token),
-    discordFetch('/users/@me/guilds', token),
-  ]);
-  USER   = userData;
-  GUILDS = guildsData.filter(g => (parseInt(g.permissions) & 0x8) || g.owner);
-
-  // Charge config locale
-  const raw = localStorage.getItem(CONFIG_KEY);
-  CFG = raw ? JSON.parse(raw) : {};
+async function loadUser(){
+  const [u,g]=await Promise.all([dFetch("/users/@me"),dFetch("/users/@me/guilds")]);
+  if(!u.id) throw new Error("bad user");
+  USER=u;
+  GUILDS=(Array.isArray(g)?g:[]).filter(guild=>
+    guild.owner===true||(BigInt(guild.permissions||0)&BigInt(0x8))!==BigInt(0)
+  );
 }
 
-async function discordFetch(path, token) {
-  const r = await fetch(DISCORD_API + path, {
-    headers: { Authorization: 'Bearer ' + token },
-  });
-  if (!r.ok) throw new Error('Discord API ' + r.status);
+async function dFetch(path){
+  if(!validToken(TOKEN)) throw new Error("invalid token");
+  const r=await fetch(DAPI+path,{headers:{Authorization:"Bearer "+TOKEN}});
+  if(r.status===401){clearS();throw new Error("unauth");}
+  if(!r.ok) throw new Error("api "+r.status);
   return r.json();
 }
 
-function logout() {
-  clearSession();
-  USER = null; GUILDS = []; CURRENT = null;
-  document.getElementById('app').style.display = 'none';
+function logout(){
+  clearS(); TOKEN=null; USER=null; GUILDS=[]; CUR=null;
+  document.getElementById("app").style.display="none";
   showLanding();
 }
 
-// ── SESSION ───────────────────────────────
-function saveSession(s)  { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
-function loadSession()   { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; } }
-function clearSession()  { localStorage.removeItem(STORAGE_KEY); }
+function saveS(s){localStorage.setItem(SK,JSON.stringify(s));}
+function loadS(){return safeJ(localStorage.getItem(SK),null);}
+function clearS(){localStorage.removeItem(SK);}
+function safeJ(s,fb){try{return JSON.parse(s);}catch{return fb;}}
 
-// ── SHOW ──────────────────────────────────
-function showLanding(err) {
-  document.getElementById('page-landing').style.display = 'flex';
-  if (err) showError(err);
+function showLanding(err){
+  document.getElementById("landing").style.display="flex";
+  if(err) showLandErr(err);
 }
-function showError(msg) {
-  const el = document.getElementById('error-box');
-  el.textContent = msg; el.style.display = 'block';
+function showLandErr(msg){
+  const el=document.getElementById("land-err");
+  el.textContent=msg; el.style.display="block";
 }
-function showApp() {
-  document.getElementById('page-landing').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+
+function showApp(){
+  document.getElementById("landing").style.display="none";
+  document.getElementById("app").style.display="block";
   setupSidebar();
   renderServers();
+  setupColorPresets();
+  updateWcPreview();
+  updateSmPreview();
 }
 
-// ── SIDEBAR ───────────────────────────────
-function setupSidebar() {
-  document.getElementById('sb-name').textContent = USER.global_name || USER.username;
-  document.getElementById('sb-tag').textContent  = '@' + USER.username;
-
-  const avW = document.getElementById('sb-avatar-wrap');
-  avW.innerHTML = USER.avatar
-    ? `<img class="avatar" src="https://cdn.discordapp.com/avatars/${USER.id}/${USER.avatar}.png?size=64" alt="">`
-    : `<div class="avatar-placeholder">${(USER.global_name || USER.username)[0].toUpperCase()}</div>`;
-
-  document.getElementById('pf-name').textContent = USER.global_name || USER.username;
-  document.getElementById('pf-disc').textContent = '@' + USER.username;
-  document.getElementById('pf-id').textContent   = USER.id;
-  document.getElementById('pf-guilds-tag').textContent = `🏠 ${GUILDS.length} serveur(s) admin`;
-
-  const pfW = document.getElementById('pf-avatar-wrap');
-  pfW.innerHTML = USER.avatar
-    ? `<img class="avatar-big" src="https://cdn.discordapp.com/avatars/${USER.id}/${USER.avatar}.png?size=128" alt="">`
-    : `<div class="avatar-big-placeholder">${(USER.global_name || USER.username)[0].toUpperCase()}</div>`;
+function setupSidebar(){
+  const av=avURL(USER);
+  document.getElementById("sb-av").innerHTML=av
+    ?('<img class="av" src="'+av+'" alt="">')
+    :('<div class="av-ph">'+xss((USER.global_name||USER.username)[0].toUpperCase())+'</div>');
+  document.getElementById("sb-name").textContent=USER.global_name||USER.username;
+  document.getElementById("sb-tag").textContent="@"+USER.username;
+  const pa=document.getElementById("pf-av");
+  pa.innerHTML=av
+    ?('<img src="'+av+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--border2)">')
+    :('<div style="width:72px;height:72px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff">'+xss((USER.global_name||USER.username)[0].toUpperCase())+'</div>');
+  document.getElementById("pf-name").textContent=USER.global_name||USER.username;
+  document.getElementById("pf-disc").textContent="@"+USER.username;
+  document.getElementById("pf-gbadge").textContent=GUILDS.length+" serveurs admin";
 }
 
-// ── PAGES ─────────────────────────────────
-function goPage(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const p = document.getElementById('page-' + name);
-  if (p) p.classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+function avURL(u){
+  if(!u||!u.avatar) return null;
+  return "https://cdn.discordapp.com/avatars/"+u.id+"/"+u.avatar+"."+(u.avatar.startsWith("a_")?"gif":"png")+"?size=128";
+}
+
+function goPage(name,btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const p=document.getElementById("page-"+name);
+  if(p) p.classList.add("active");
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
   window.scrollTo(0,0);
 }
 
-// ── SERVERS ───────────────────────────────
-function renderServers() {
-  const grid = document.getElementById('servers-grid');
-  if (!GUILDS.length) {
-    grid.innerHTML = '<p style="color:var(--text3);font-size:.875rem">Aucun serveur où tu es admin.</p>';
+function renderServers(){
+  const grid=document.getElementById("servers-grid");
+  if(!GUILDS.length){
+    grid.innerHTML='<p style="color:var(--text3);font-size:.875rem">Aucun serveur admin trouve.</p>';
     return;
   }
-  grid.innerHTML = GUILDS.map(g => {
-    // On vérifie si le bot est présent via la config locale
-    const hasBot = !!(CFG[g.id] && CFG[g.id].__bot_present);
-    const iconHTML = g.icon
-      ? `<img src="https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=64" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
-      : `<span>${g.name[0].toUpperCase()}</span>`;
-    return `
-      <div class="server-card ${hasBot ? 'bot-on' : ''}" onclick="openServer('${g.id}')">
-        <div class="server-icon" style="background:${gColor(g.id)}">${iconHTML}</div>
-        <div class="server-name" title="${esc(g.name)}">${esc(g.name)}</div>
-        <div class="server-members">Serveur Discord</div>
-        <div class="server-badge ${hasBot ? 'badge-on' : 'badge-add'}">
-          ${hasBot ? '✅ Scaloni actif' : '➕ Ajouter Scaloni'}
-        </div>
-      </div>`;
-  }).join('');
+  grid.innerHTML=GUILDS.map(g=>{
+    const hasBot=!!(CFG[g.id]&&CFG[g.id].__bot);
+    const icon=g.icon
+      ?('<img src="https://cdn.discordapp.com/icons/'+g.id+'/'+g.icon+'.'+(g.icon.startsWith("a_")?"gif":"png")+'?size=64" style="width:100%;height:100%;border-radius:50%;object-fit:cover">')
+      :('<span>'+xss(g.name[0].toUpperCase())+'</span>');
+    return '<div class="sc '+(hasBot?"byes":"")+'" onclick="openGuild(\''+xss(g.id)+'\')">'
+      +'<div class="sc-chk '+(hasBot?"y":"n")+'">'+(hasBot?"&#x2705;":"?")+'</div>'
+      +'<div class="sc-icon" style="background:'+gColor(g.id)+'">'+icon+'</div>'
+      +'<div class="sc-name" title="'+xss(g.name)+'">'+xss(g.name)+'</div>'
+      +'<div class="sc-sub">'+(hasBot?'<span style="color:var(--green);font-size:.7rem">&#x25CF; Scaloni actif</span>':'<span style="color:var(--text3);font-size:.7rem">&#x25CB; Bot absent</span>')+'</div>'
+      +'<div class="bdg '+(hasBot?"bg":"bp")+'" style="margin-top:6px">'+(hasBot?"Configurer":"Ajouter")+'</div>'
+      +'</div>';
+  }).join("");
 }
 
-function openServer(gid) {
-  CURRENT = GUILDS.find(g => g.id === gid);
-  if (!CURRENT) return;
-
-  // Affiche la nav serveur
-  document.getElementById('guild-nav').style.display = 'block';
-  document.getElementById('guild-nav-name').textContent = CURRENT.name;
-
-  // Breadcrumbs
-  ['nobot','ov','wc','am','ec','sc'].forEach(id => {
-    const el = document.getElementById('bc-' + id);
-    if (el) el.textContent = CURRENT.name;
+function openGuild(gid){
+  if(!validId(gid)||!isAdmin(gid)){ toast("Acces refuse.","err"); return; }
+  CUR=GUILDS.find(g=>g.id===gid);
+  if(!CUR) return;
+  const hasBot=!!(CFG[gid]&&CFG[gid].__bot);
+  document.getElementById("guild-nav").style.display="block";
+  document.getElementById("guild-nav-lbl").textContent=CUR.name;
+  ["nb","ov","wc","am","ec","sc","lv","tk","lg"].forEach(function(id){
+    const el=document.getElementById("bc-"+id);
+    if(el) el.textContent=xss(CUR.name);
   });
-
-  const hasBot = !!(CFG[gid] && CFG[gid].__bot_present);
-
-  if (!hasBot) {
-    // Pas de bot → page d'invitation
-    setGuildHeader('nb-icon', CURRENT);
-    document.getElementById('nb-name').textContent = CURRENT.name;
-    document.getElementById('nb-id').textContent   = 'ID : ' + CURRENT.id;
-    document.getElementById('add-bot-btn').onclick = () => {
-      const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&permissions=8&scope=bot&guild_id=${CURRENT.id}`;
-      window.open(url, '_blank');
-      // Marquer comme actif localement après invitation
-      setTimeout(() => {
-        if (!CFG[CURRENT.id]) CFG[CURRENT.id] = {};
-        CFG[CURRENT.id].__bot_present = true;
-        saveCFG();
-        renderServers();
-        toast('Bot invité ! Relance la page après avoir accepté.', 'ok');
-      }, 2000);
-    };
-    goPage('nobot', null);
+  if(!hasBot){
+    setGIcon("nb-icon",CUR);
+    document.getElementById("nb-name").textContent=xss(CUR.name);
+    document.getElementById("nb-id").textContent="ID : "+xss(CUR.id);
+    document.getElementById("add-bot-btn").onclick=function(){ inviteBot(CUR.id); };
+    goPage("nobot",null);
   } else {
-    // Bot présent → vue d'ensemble
-    setGuildHeader('ov-icon', CURRENT);
-    document.getElementById('ov-name').textContent = CURRENT.name;
-    document.getElementById('ov-id').textContent   = 'ID : ' + CURRENT.id;
-    loadConfigToForms(gid);
-    updateOverviewStats();
-    goPage('overview', document.getElementById('nav-overview'));
+    setGIcon("ov-icon",CUR);
+    document.getElementById("ov-name").textContent=xss(CUR.name);
+    document.getElementById("ov-id").textContent="ID : "+xss(CUR.id);
+    loadForms(gid);
+    refreshStats();
+    goPage("overview",document.getElementById("nav-overview"));
   }
 }
 
-function markBotPresent() {
-  // Appelé manuellement depuis la page "pas de bot" si l'utilisateur
-  // a déjà ajouté le bot et veut accéder à la config
-  if (!CURRENT) return;
-  if (!CFG[CURRENT.id]) CFG[CURRENT.id] = {};
-  CFG[CURRENT.id].__bot_present = true;
-  saveCFG();
-  renderServers();
-  openServer(CURRENT.id);
+function inviteBot(gid){
+  var url="https://discord.com/oauth2/authorize?client_id="+CLIENT_ID+"&permissions=8&scope=bot&guild_id="+xss(gid);
+  window.open(url,"_blank");
+  toast("Fenetre Discord ouverte. Apres avoir accepte, clique a nouveau sur le serveur.","info");
+  setTimeout(function(){
+    if(!CFG[gid]) CFG[gid]={};
+    CFG[gid].__bot=true;
+    saveCFG(); renderServers();
+  },4000);
 }
 
-function setGuildHeader(elId, guild) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  if (guild.icon) {
-    el.innerHTML = `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=64" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
-    el.style.background = 'transparent';
+function setGIcon(elId,guild){
+  const el=document.getElementById(elId); if(!el) return;
+  if(guild.icon){
+    el.innerHTML='<img src="https://cdn.discordapp.com/icons/'+guild.id+'/'+guild.icon+'.png?size=64" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+    el.style.background="transparent";
   } else {
-    el.textContent = guild.name[0].toUpperCase();
-    el.style.background = gColor(guild.id);
+    el.textContent=xss(guild.name[0].toUpperCase());
+    el.style.background=gColor(guild.id);
   }
 }
 
-function updateOverviewStats() {
-  if (!CURRENT) return;
-  const c = CFG[CURRENT.id] || {};
-  const items    = (c.shop_items || []).length;
-  const monitors = (c.streamers  || []).length;
-  const prot     = ['anti_links','anti_invites','anti_spam','anti_caps','anti_mention','anti_badwords']
-                   .filter(k => c[k]).length;
-  document.getElementById('ov-members').textContent  = '—';
-  document.getElementById('ov-items').textContent    = items;
-  document.getElementById('ov-monitors').textContent = monitors;
-  document.getElementById('ov-prot').textContent     = prot + '/6';
+function refreshStats(){
+  if(!CUR) return;
+  const c=CFG[CUR.id]||{};
+  const prot=["anti_links","anti_invites","anti_spam","anti_caps","anti_mention","anti_badwords"].filter(function(k){return c[k];}).length;
+  S("st-prot",prot+"/6");
+  S("st-items",(c.shop_items||[]).length);
+  S("st-mon",(c.streamers||[]).length);
+  S("st-rwd",(c.lvl_rewards||[]).length);
 }
 
-// ── CONFIG ────────────────────────────────
-function gCFG() {
-  if (!CURRENT) return {};
-  if (!CFG[CURRENT.id]) CFG[CURRENT.id] = {};
-  return CFG[CURRENT.id];
+function gCFG(){
+  if(!CUR) return {};
+  if(!CFG[CUR.id]) CFG[CUR.id]={};
+  return CFG[CUR.id];
 }
+function saveCFG(){ localStorage.setItem(CK,JSON.stringify(CFG)); }
 
-function saveCFG() {
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(CFG));
-  // Génère aussi un fichier téléchargeable scaloni_config.json
-  exportConfig();
-}
-
-function exportConfig() {
-  // Crée un Blob téléchargeable — le bot le lit via scaloni_config.json
-  const blob = new Blob([JSON.stringify(CFG, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const link = document.getElementById('dl-config');
-  if (link) { link.href = url; link.download = 'scaloni_config.json'; }
-}
-
-function loadConfigToForms(gid) {
-  const c = CFG[gid] || {};
-  // Welcome
-  v('wc-ch',  c.welcome_channel || '');
-  v('wc-msg', c.welcome_msg     || '');
-  v('lv-ch',  c.leave_channel   || '');
-  v('lv-msg', c.leave_msg       || '');
-  // AutoMod toggles
-  ['anti_links','anti_invites','anti_spam','anti_caps','anti_mention','anti_badwords'].forEach(k => {
-    const sw = document.getElementById('sw-' + k);
-    if (!sw) return;
-    sw.classList.toggle('on',  !!c[k]);
-    sw.classList.toggle('off', !c[k]);
+function loadForms(gid){
+  const c=CFG[gid]||{};
+  V("wc-ch",c.welcome_channel); V("wc-role",c.welcome_role);
+  V("wc-color",c.welcome_color||"#7c5cfc");
+  V("wc-title",c.welcome_title||"Bienvenue !");
+  V("wc-desc",c.welcome_desc||"Bienvenue {user} sur {server} ! Tu es le {count}eme membre");
+  V("wc-author",c.welcome_author); V("wc-footer",c.welcome_footer);
+  V("wc-image",c.welcome_image); V("wc-thumb",c.welcome_thumb);
+  V("lv-ch",c.leave_channel); V("lv-color",c.leave_color||"#ef4444");
+  V("lv-title",c.leave_title||"Au revoir !"); V("lv-desc",c.leave_desc||"{username} a quitte {server}."); V("lv-footer",c.leave_footer);
+  ["anti_links","anti_invites","anti_spam","anti_caps","anti_mention","anti_badwords","anti_badname","anti_files"].forEach(function(k){
+    const sw=document.getElementById("sw-"+k); if(!sw) return;
+    sw.classList.toggle("on",!!c[k]); sw.classList.toggle("off",!c[k]);
   });
-  v('am-bad_words', c.bad_words   || '');
-  v('am-whitelist', c.whitelist   || '');
-  // Economy
-  v('ec-name',  c.currency_name  || 'Scaloni Coins');
-  v('ec-emoji', c.currency_emoji || '🪙');
-  v('ec-lvlch', c.lvlup_channel  || '');
-  // Shop
-  renderShop(c.shop_items || []);
-  // Social
-  renderMonitors(c.streamers || []);
+  V("am-spam",c.spam_thresh||5); V("am-caps",c.caps_thresh||70);
+  V("am-action",c.am_action||"delete"); V("am-log-ch",c.am_log);
+  V("am-badwords",c.bad_words); V("am-regex",c.am_regex);
+  V("am-whitelist",c.whitelist); V("am-exempt-roles",c.exempt_roles); V("am-exempt-ch",c.exempt_ch);
+  V("ec-name",c.currency_name||"Scaloni Coins"); V("ec-emoji",c.currency_emoji||"🪙");
+  V("ec-daily",c.daily_amount||100); V("ec-work",c.work_amount||50); V("ec-lvl-ch",c.lvlup_channel);
+  renderShopList(c.shop_items||[]);
+  renderMonitorList(c.streamers||[]);
+  V("lv-min",c.xp_min||5); V("lv-max",c.xp_max||15);
+  V("lv-cooldown",c.xp_cooldown||60); V("lv-ch",c.lvlup_channel);
+  V("lv-msg",c.lvlup_msg||"{user} passe au niveau {level} ! +{reward} {emoji}");
+  renderLvlRwds(c.lvl_rewards||[]);
+  const la=document.getElementById("sw-lv-announce");
+  if(la){ la.classList.toggle("on",c.lv_announce!==false); la.classList.toggle("off",c.lv_announce===false); }
+  V("tk-panel-ch",c.tk_panel_ch); V("tk-cat",c.tk_category);
+  V("tk-role",c.tk_role); V("tk-logs",c.tk_logs);
+  V("tk-title",c.tk_title||"Creer un ticket");
+  V("tk-desc",c.tk_desc||"Clique pour ouvrir un ticket prive.");
+  V("tk-color",c.tk_color||"#7c5cfc"); V("tk-btn",c.tk_btn||"Creer un ticket");
+  V("tk-welcome",c.tk_welcome||"Bienvenue {user} ! Decris ton probleme.");
+  const tt=document.getElementById("sw-tk-trans");
+  if(tt){ tt.classList.toggle("on",c.tk_transcript!==false); tt.classList.toggle("off",c.tk_transcript===false); }
+  ["mod","automod","sanct","members","profile","voice","del","edit","shop","lvl"].forEach(function(k){ V("lg-"+k,c["log_"+k]); });
+  updateWcPreview();
 }
 
-function save(section) {
-  const c = gCFG();
-  if (section === 'welcome') {
-    c.welcome_channel = g('wc-ch');
-    c.welcome_msg     = g('wc-msg');
-    c.leave_channel   = g('lv-ch');
-    c.leave_msg       = g('lv-msg');
-  } else if (section === 'automod') {
-    ['anti_links','anti_invites','anti_spam','anti_caps','anti_mention','anti_badwords'].forEach(k => {
-      const sw = document.getElementById('sw-' + k);
-      c[k] = sw ? sw.classList.contains('on') : false;
+function save(section){
+  if(!CUR||!isAdmin(CUR.id)){ toast("Acces refuse.","err"); return; }
+  const c=gCFG();
+  if(section==="welcome"){
+    c.welcome_channel=G("wc-ch"); c.welcome_role=G("wc-role");
+    c.welcome_color=G("wc-color"); c.welcome_title=G("wc-title");
+    c.welcome_desc=G("wc-desc"); c.welcome_author=G("wc-author");
+    c.welcome_footer=G("wc-footer"); c.welcome_image=G("wc-image");
+    c.welcome_thumb=G("wc-thumb"); c.welcome_btns=collectBtns("wc");
+  } else if(section==="leave"){
+    c.leave_channel=G("lv-ch"); c.leave_color=G("lv-color");
+    c.leave_title=G("lv-title"); c.leave_desc=G("lv-desc"); c.leave_footer=G("lv-footer");
+  } else if(section==="automod"){
+    ["anti_links","anti_invites","anti_spam","anti_caps","anti_mention","anti_badwords","anti_badname","anti_files"].forEach(function(k){
+      const sw=document.getElementById("sw-"+k); c[k]=sw?sw.classList.contains("on"):false;
     });
-    c.bad_words  = g('am-bad_words');
-    c.whitelist  = g('am-whitelist');
-  } else if (section === 'economy') {
-    c.currency_name  = g('ec-name');
-    c.currency_emoji = g('ec-emoji');
-    c.lvlup_channel  = g('ec-lvlch');
-  } else if (section === 'social') {
-    // Already saved via addMonitor/removeMonitor
+    c.spam_thresh=parseInt(G("am-spam"))||5; c.caps_thresh=parseInt(G("am-caps"))||70;
+    c.am_action=G("am-action"); c.am_log=G("am-log-ch");
+    c.bad_words=G("am-badwords"); c.am_regex=G("am-regex");
+    c.whitelist=G("am-whitelist"); c.exempt_roles=G("am-exempt-roles"); c.exempt_ch=G("am-exempt-ch");
+  } else if(section==="economy"){
+    c.currency_name=G("ec-name")||"Scaloni Coins"; c.currency_emoji=G("ec-emoji")||"🪙";
+    c.daily_amount=parseInt(G("ec-daily"))||100; c.work_amount=parseInt(G("ec-work"))||50;
+    c.lvlup_channel=G("ec-lvl-ch");
+  } else if(section==="levels"){
+    c.xp_min=parseInt(G("lv-min"))||5; c.xp_max=parseInt(G("lv-max"))||15;
+    c.xp_cooldown=parseInt(G("lv-cooldown"))||60; c.lvlup_channel=G("lv-ch"); c.lvlup_msg=G("lv-msg");
+    const la=document.getElementById("sw-lv-announce"); if(la) c.lv_announce=la.classList.contains("on");
+    const lr=document.getElementById("sw-lv-rewards");  if(lr) c.lv_rewards_en=lr.classList.contains("on");
+  } else if(section==="tickets"){
+    c.tk_panel_ch=G("tk-panel-ch"); c.tk_category=G("tk-cat");
+    c.tk_role=G("tk-role"); c.tk_logs=G("tk-logs");
+    c.tk_title=G("tk-title"); c.tk_desc=G("tk-desc");
+    c.tk_color=G("tk-color"); c.tk_btn=G("tk-btn"); c.tk_welcome=G("tk-welcome");
+    const tt=document.getElementById("sw-tk-trans"); if(tt) c.tk_transcript=tt.classList.contains("on");
+  } else if(section==="logs"){
+    ["mod","automod","sanct","members","profile","voice","del","edit","shop","lvl"].forEach(function(k){ c["log_"+k]=G("lg-"+k); });
   }
-  saveCFG();
-  updateOverviewStats();
-  const ok = document.getElementById('ok-' + section);
-  if (ok) { ok.classList.add('show'); setTimeout(() => ok.classList.remove('show'), 2500); }
-  toast('Configuration sauvegardée ! Copie scaloni_config.json dans le dossier du bot.', 'ok');
-  // Déclenche le téléchargement automatique
-  triggerDownload();
+  saveCFG(); refreshStats();
+  const ok=document.getElementById("ok-"+section);
+  if(ok){ ok.classList.add("show"); setTimeout(function(){ ok.classList.remove("show"); },2500); }
+  toast("Configuration sauvegardee !","ok");
+  downloadCFG();
 }
 
-function triggerDownload() {
-  const blob = new Blob([JSON.stringify(CFG, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = 'scaloni_config.json';
+function toggle(sw,key){
+  sw.classList.toggle("on"); sw.classList.toggle("off");
+  const c=gCFG(); c[key]=sw.classList.contains("on");
+  saveCFG(); refreshStats();
+}
+
+function downloadCFG(){
+  const blob=new Blob([JSON.stringify(CFG,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="scaloni_config.json";
   document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-function toggleSw(sw, key) {
-  sw.classList.toggle('on');
-  sw.classList.toggle('off');
-  const c = gCFG();
-  c[key] = sw.classList.contains('on');
-  saveCFG();
-  updateOverviewStats();
+function switchTab(btn,panelId){
+  const parent=btn.closest(".page-inner")||document.body;
+  parent.querySelectorAll(".itab").forEach(function(b){ b.classList.remove("active"); });
+  btn.classList.add("active");
+  const itabsEl=btn.closest(".itabs");
+  if(itabsEl&&itabsEl.parentNode){
+    itabsEl.parentNode.querySelectorAll(":scope > div:not(.itabs)").forEach(function(d){ d.style.display="none"; });
+  }
+  const t=document.getElementById(panelId);
+  if(t) t.style.display="block";
 }
 
-// ── SHOP ──────────────────────────────────
-function renderShop(items) {
-  const el = document.getElementById('shop-list');
-  const emoji = (gCFG().currency_emoji || '🪙');
-  if (!items.length) { el.innerHTML = '<div style="font-size:.82rem;color:var(--text3)">Aucun article.</div>'; return; }
-  el.innerHTML = items.map((item, i) => `
-    <div class="item-row">
-      <div class="em">${esc(item.emoji || '🎁')}</div>
-      <div class="item-info">
-        <strong>${esc(item.name)}</strong>
-        <span>${esc(item.description || '')}</span>
-      </div>
-      <div class="item-price">${item.price} ${esc(emoji)}</div>
-      <button class="btn btn-danger" style="padding:4px 10px;font-size:.75rem" onclick="removeItem(${i})">✕</button>
-    </div>`).join('');
-}
-function addItem() {
-  const name  = g('si-name').trim();
-  const price = parseInt(g('si-price'));
-  const emoji = g('si-emoji').trim() || '🎁';
-  const desc  = g('si-desc').trim();
-  if (!name || !price || price < 1) { toast('Nom et prix requis.', 'err'); return; }
-  const c = gCFG();
-  if (!c.shop_items) c.shop_items = [];
-  c.shop_items.push({ name, price, emoji, description: desc });
-  saveCFG();
-  renderShop(c.shop_items);
-  ['si-name','si-price','si-emoji','si-desc'].forEach(id => v(id,''));
-  toast('Article ajouté !', 'ok');
-}
-function removeItem(i) {
-  const c = gCFG();
-  if (!c.shop_items) return;
-  c.shop_items.splice(i, 1);
-  saveCFG(); renderShop(c.shop_items);
+function updateWcPreview(){
+  const color=G("wc-color")||"#7c5cfc";
+  const title=G("wc-title")||"";
+  const desc=G("wc-desc")||"";
+  const footer=G("wc-footer")||"";
+  const imgURL=G("wc-image")||"";
+  const thumbURL=G("wc-thumb")||"";
+  const ep=document.getElementById("ep-wc"); if(!ep) return;
+  ep.style.borderLeftColor=color;
+  S("ep-wc-title",title); S("ep-wc-desc",desc);
+  const imgEl=document.getElementById("ep-wc-img");
+  const thumbEl=document.getElementById("ep-wc-thumb");
+  if(imgEl){ imgEl.src=imgURL; imgEl.style.display=imgURL?"block":"none"; }
+  if(thumbEl){ thumbEl.src=(thumbURL&&thumbURL!=="{avatar}")?thumbURL:""; thumbEl.style.display=(thumbURL&&thumbURL!=="{avatar}")?"block":"none"; }
+  const fEl=document.getElementById("ep-wc-footer");
+  const fTxt=document.getElementById("ep-wc-footer-txt");
+  if(fEl) fEl.style.display=footer?"flex":"none";
+  if(fTxt) fTxt.textContent=footer;
+  const btnsEl=document.getElementById("ep-wc-btns");
+  if(btnsEl){
+    const btns=collectBtns("wc");
+    btnsEl.innerHTML=btns.map(function(b){ return '<button class="ep-btn'+(b.url?" lnk":"")+'">'+(b.label)+'</button>'; }).join("");
+  }
 }
 
-// ── MONITORS ──────────────────────────────
-function renderMonitors(monitors) {
-  const el = document.getElementById('monitor-list');
-  if (!monitors.length) { el.innerHTML = '<div style="font-size:.82rem;color:var(--text3)">Aucune surveillance.</div>'; return; }
-  el.innerHTML = monitors.map((m, i) => `
-    <div class="item-row">
-      <span class="pb pb-${m.platform}">${m.platform.toUpperCase()}</span>
-      <div class="item-info">
-        <strong>@${esc(m.username)}</strong>
-        <span>Salon : ${m.channel_id ? '#' + m.channel_id : 'non défini'}</span>
-      </div>
-      <button class="btn btn-danger" style="padding:4px 10px;font-size:.75rem" onclick="removeMonitor(${i})">✕</button>
-    </div>`).join('');
-}
-function addMonitor() {
-  const platform = g('sm-plat');
-  const username = g('sm-user').trim();
-  const channel  = g('sm-ch').trim();
-  const msg      = g('sm-msg').trim();
-  if (!username) { toast('Nom d\'utilisateur requis.', 'err'); return; }
-  const c = gCFG();
-  if (!c.streamers) c.streamers = [];
-  c.streamers.push({ platform, username, channel_id: channel, custom_msg: msg });
-  saveCFG(); renderMonitors(c.streamers);
-  v('sm-user',''); v('sm-ch',''); v('sm-msg','');
-  toast('Surveillance ajoutée !', 'ok');
-}
-function removeMonitor(i) {
-  const c = gCFG();
-  if (!c.streamers) return;
-  c.streamers.splice(i, 1);
-  saveCFG(); renderMonitors(c.streamers);
+var btnCnt=0;
+function addBtn(prefix){
+  const list=document.getElementById(prefix+"-btns-list");
+  const id=++btnCnt;
+  const row=document.createElement("div");
+  row.id=prefix+"-btn-"+id;
+  row.style.cssText="display:flex;gap:8px;align-items:center;margin-bottom:8px";
+  const i1=document.createElement("input");
+  i1.type="text"; i1.placeholder="Texte du bouton";
+  i1.style.cssText="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:var(--rs);font-size:.82rem";
+  i1.addEventListener("input",updateWcPreview);
+  const i2=document.createElement("input");
+  i2.type="text"; i2.placeholder="URL (optionnel)";
+  i2.style.cssText="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:var(--rs);font-size:.82rem";
+  i2.addEventListener("input",updateWcPreview);
+  const btn=document.createElement("button");
+  btn.className="btn btn-d btn-sm btn-icon"; btn.textContent="x";
+  btn.onclick=function(){ row.remove(); updateWcPreview(); };
+  row.appendChild(i1); row.appendChild(i2); row.appendChild(btn);
+  list.appendChild(row);
 }
 
-// ── TOAST ─────────────────────────────────
-function toast(msg, type='ok') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show ' + type;
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), 4000);
+function collectBtns(prefix){
+  const list=document.getElementById(prefix+"-btns-list");
+  if(!list) return [];
+  return Array.from(list.querySelectorAll("div")).map(function(row){
+    const inputs=row.querySelectorAll("input");
+    return {label:inputs[0]?inputs[0].value:"",url:inputs[1]?inputs[1].value:""};
+  }).filter(function(b){ return b.label; });
 }
 
-// ── UTILS ─────────────────────────────────
-function g(id) { const el = document.getElementById(id); return el ? el.value : ''; }
-function v(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function gColor(id) {
-  const colors = ['#7c5cfc','#5865f2','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
-  return colors[Number(BigInt(id) % BigInt(colors.length))];
+const SM_DEF={
+  twitch: {color:"#9146ff",title:"🔴 {name} est en LIVE !",desc:"**{title}** · {game}",btn:"Regarder le live"},
+  youtube:{color:"#ff0000",title:"Nouvelle video de {name}",desc:"**{title}**",btn:"Voir la video"},
+  twitter:{color:"#1d9bf0",title:"{name} a tweete",desc:"{title}",btn:"Voir le tweet"},
+  instagram:{color:"#e1306c",title:"{name} a poste !",desc:"Nouveau post Instagram",btn:"Voir le post"},
+  tiktok:{color:"#010101",title:"{name} - Nouvelle video",desc:"Nouveau TikTok !",btn:"Voir la video"},
+  reddit:{color:"#ff4500",title:"Nouveau post r/{name}",desc:"**{title}**",btn:"Voir le post"}
+};
+
+function updateSmDefaults(){
+  const plat=G("sm-plat");
+  const d=SM_DEF[plat]||SM_DEF.twitch;
+  if(!G("sm-title")) V("sm-title",d.title);
+  if(!G("sm-desc"))  V("sm-desc",d.desc);
+  if(!G("sm-btn"))   V("sm-btn",d.btn);
+  const sc=document.getElementById("sm-color"); if(sc) sc.value=d.color;
+  updateSmPreview();
 }
+
+function updateSmPreview(){
+  const sc=document.getElementById("sm-color");
+  const color=sc?sc.value:"#ef4444";
+  const title=G("sm-title")||"xqc est en LIVE !";
+  const desc=G("sm-desc")||"Just Chatting";
+  const btn=G("sm-btn")||"";
+  const footer=G("sm-footer")||"";
+  const thumbMode=G("sm-thumb")||"auto";
+  const imgMode=G("sm-image")||"none";
+  const roleId=G("sm-role")||"";
+
+  function rv(s){ return s.split("{name}").join("xqc").split("{title}").join("Just Chatting").split("{game}").join("GTA V").split("{url}").join("twitch.tv/xqc").split("{viewers}").join("42.3K").split("{platform}").join("Twitch"); }
+
+  const ep=document.getElementById("ep-sm"); if(!ep) return;
+  ep.style.borderLeftColor=color;
+  S("ep-sm-title",rv(title)); S("ep-sm-desc",rv(desc));
+
+  const thumbEl=document.getElementById("ep-sm-thumb");
+  const twEl=document.getElementById("sm-thumb-wrap");
+  if(twEl) twEl.style.display=thumbMode==="custom"?"block":"none";
+  if(thumbEl){
+    if(thumbMode==="auto"){ thumbEl.src="https://static-cdn.jtvnw.net/jtv_user_pictures/xqc-profile_image-9298dca608632101-70x70.jpeg"; thumbEl.style.display="block"; }
+    else if(thumbMode==="custom"&&G("sm-thumb-url")){ thumbEl.src=G("sm-thumb-url"); thumbEl.style.display="block"; }
+    else thumbEl.style.display="none";
+  }
+  const imgEl=document.getElementById("ep-sm-img");
+  const iwEl=document.getElementById("sm-img-wrap");
+  if(iwEl) iwEl.style.display=imgMode==="custom"?"block":"none";
+  if(imgEl){
+    if(imgMode==="auto"){ imgEl.src="https://static-cdn.jtvnw.net/previews-ttv/live_user_xqc-640x360.jpg"; imgEl.style.display="block"; }
+    else if(imgMode==="custom"&&G("sm-image-url")){ imgEl.src=G("sm-image-url"); imgEl.style.display="block"; }
+    else imgEl.style.display="none";
+  }
+  const btnsEl=document.getElementById("ep-sm-btns");
+  if(btnsEl) btnsEl.innerHTML=btn?('<button class="ep-btn lnk">'+btn+'</button>'):"";
+  const mentEl=document.getElementById("sp-mention");
+  if(mentEl){ mentEl.style.display=roleId?"inline":"none"; mentEl.textContent=roleId?"@Role":""; }
+  const fEl=document.getElementById("ep-sm-footer");
+  const fTxt=document.getElementById("ep-sm-footer-txt");
+  if(fEl) fEl.style.display=footer?"flex":"none";
+  if(fTxt) fTxt.textContent=rv(footer);
+}
+
+function addMonitor(){
+  const username=G("sm-user").trim();
+  if(!username){ toast("Nom d utilisateur requis.","err"); return; }
+  const c=gCFG(); if(!c.streamers) c.streamers=[];
+  const sc=document.getElementById("sm-color");
+  c.streamers.push({
+    platform:G("sm-plat"), username:username, channel_id:G("sm-ch"), role_id:G("sm-role"),
+    color:sc?sc.value:"#ef4444",
+    title:G("sm-title"), desc:G("sm-desc"), btn:G("sm-btn"), footer:G("sm-footer"),
+    thumb_mode:G("sm-thumb"), image_mode:G("sm-image"),
+    thumb_url:G("sm-thumb-url"), image_url:G("sm-image-url")
+  });
+  saveCFG(); renderMonitorList(c.streamers);
+  ["sm-user","sm-ch","sm-role","sm-title","sm-desc","sm-btn","sm-footer","sm-thumb-url","sm-image-url"].forEach(function(id){ V(id,""); });
+  refreshStats(); toast("Surveillance ajoutee !","ok");
+}
+
+function renderMonitorList(monitors){
+  const el=document.getElementById("monitor-list"); if(!el) return;
+  if(!monitors.length){ el.innerHTML='<div style="font-size:.82rem;color:var(--text3)">Aucune surveillance.</div>'; return; }
+  el.innerHTML=monitors.map(function(m,i){
+    return '<div class="mi">'
+      +'<span class="mi-plat plat-'+m.platform+'">'+m.platform.toUpperCase()+'</span>'
+      +'<div class="mi-info">'
+        +'<strong>@'+xss(m.username)+'</strong>'
+        +'<span>Salon: '+(m.channel_id?"#"+xss(m.channel_id):"non defini")+(m.role_id?" · Mention: @"+xss(m.role_id):"")+'</span>'
+        +(m.title?('<div class="mi-prev"><strong>'+xss(m.title)+'</strong><br><span style="font-size:.72rem">'+xss(m.desc||"")+'</span>'+(m.btn?('<br><span style="background:#5865f2;color:#fff;padding:3px 8px;border-radius:4px;font-size:.72rem;display:inline-block;margin-top:4px">'+xss(m.btn)+'</span>'):"")+'</div>'):"")
+      +'</div>'
+      +'<button class="btn btn-d btn-sm btn-icon" onclick="removeMonitor('+i+')">x</button>'
+      +'</div>';
+  }).join("");
+}
+
+function removeMonitor(i){
+  const c=gCFG(); if(!c.streamers) return;
+  c.streamers.splice(i,1); saveCFG(); renderMonitorList(c.streamers); refreshStats();
+}
+
+function updateShopForm(){
+  const t=G("si-type");
+  document.getElementById("si-role-wrap").style.display=(t==="role"||t==="temp_role")?"block":"none";
+  document.getElementById("si-dur-wrap").style.display=t==="temp_role"?"block":"none";
+  document.getElementById("si-bonus-wrap").style.display=t==="coins"?"block":"none";
+}
+
+function renderShopList(items){
+  const el=document.getElementById("shop-list"); if(!el) return;
+  if(!items.length){ el.innerHTML='<div style="font-size:.82rem;color:var(--text3)">Aucun article.</div>'; return; }
+  const emoji=gCFG().currency_emoji||"🪙";
+  const types={custom:"Objet",role:"Role",temp_role:"Role temp.",nitro:"Nitro",coins:"Coins"};
+  el.innerHTML=items.map(function(item,i){
+    return '<div class="shi">'
+      +'<div class="shi-em">'+xss(item.emoji||"🎁")+'</div>'
+      +'<div>'
+        +'<div class="shi-name">'+xss(item.name)+'</div>'
+        +'<div class="shi-meta">'
+          +'<span class="bdg bb">'+(types[item.type]||"Objet")+'</span>'
+          +(item.stock!==-1?'<span class="bdg by">Stock: '+item.stock+'</span>':"")
+          +(item.duration?'<span class="bdg bp">'+item.duration+'j</span>':"")
+          +(item.role_id?'<span class="bdg bp">Role: '+xss(item.role_id)+'</span>':"")
+          +'<span style="font-size:.72rem;color:var(--text3)">'+xss(item.description||"")+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="shi-price">'+item.price+" "+xss(emoji)+'</div>'
+      +'<button class="btn btn-d btn-sm btn-icon" onclick="removeShopItem('+i+')">x</button>'
+      +'</div>';
+  }).join("");
+}
+
+function addShopItem(){
+  const name=G("si-name").trim(), price=parseInt(G("si-price"));
+  if(!name||!price||price<1){ toast("Nom et prix requis.","err"); return; }
+  const c=gCFG(); if(!c.shop_items) c.shop_items=[];
+  c.shop_items.push({
+    name:name, price:price, emoji:G("si-emoji")||"🎁", description:G("si-desc").trim(),
+    type:G("si-type"), stock:parseInt(G("si-stock"))||(-1),
+    role_id:G("si-role"), duration:parseInt(G("si-duration"))||0,
+    bonus:parseInt(G("si-bonus"))||0
+  });
+  saveCFG(); renderShopList(c.shop_items);
+  ["si-name","si-price","si-emoji","si-desc","si-role","si-bonus"].forEach(function(id){ V(id,""); });
+  refreshStats(); toast("Article ajoute !","ok");
+}
+
+function removeShopItem(i){
+  const c=gCFG(); if(!c.shop_items) return;
+  c.shop_items.splice(i,1); saveCFG(); renderShopList(c.shop_items); refreshStats();
+}
+
+function renderLvlRwds(rewards){
+  const el=document.getElementById("lvl-rwd-list"); if(!el) return;
+  if(!rewards.length){ el.innerHTML='<div style="font-size:.78rem;color:var(--text3)">Aucune recompense.</div>'; return; }
+  el.innerHTML=rewards.map(function(r,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);font-size:.82rem">'
+      +'<span class="bdg bp">Niveau '+r.level+'</span>'
+      +'<span style="flex:1">Role: '+xss(r.role_id||"—")+(r.coins?" · +"+r.coins+" coins":"")+'</span>'
+      +'<button class="btn btn-d btn-sm btn-icon" onclick="removeLvlRwd('+i+')">x</button>'
+      +'</div>';
+  }).join("");
+}
+
+function addLvlRwd(){
+  const level=parseInt(G("lv-rw-level")), role=G("lv-rw-role").trim(), coins=parseInt(G("lv-rw-coins"))||0;
+  if(!level||level<1){ toast("Niveau requis.","err"); return; }
+  const c=gCFG(); if(!c.lvl_rewards) c.lvl_rewards=[];
+  c.lvl_rewards.push({level:level, role_id:role, coins:coins});
+  c.lvl_rewards.sort(function(a,b){ return a.level-b.level; });
+  saveCFG(); renderLvlRwds(c.lvl_rewards); refreshStats();
+  V("lv-rw-level",""); V("lv-rw-role",""); V("lv-rw-coins",0);
+}
+
+function removeLvlRwd(i){
+  const c=gCFG(); if(!c.lvl_rewards) return;
+  c.lvl_rewards.splice(i,1); saveCFG(); renderLvlRwds(c.lvl_rewards); refreshStats();
+}
+
+const PRESETS=["#7c5cfc","#5865f2","#10b981","#ef4444","#f59e0b","#3b82f6","#ec4899","#06b6d4","#8b5cf6","#ffffff","#1a1a2e"];
+
+function setupColorPresets(){
+  ["wc-cpresets","sm-cpresets"].forEach(function(elId){
+    const el=document.getElementById(elId); if(!el) return;
+    el.innerHTML=PRESETS.map(function(c){
+      return '<div class="cp" style="background:'+c+'" onclick="pickColor(\''+elId+'\',\''+c+'\',this)" title="'+c+'"></div>';
+    }).join("");
+  });
+}
+
+function pickColor(presetId,color,dot){
+  const inputId=presetId==="wc-cpresets"?"wc-color":"sm-color";
+  const input=document.getElementById(inputId);
+  if(input){ input.value=color; input.dispatchEvent(new Event("input")); }
+  const container=document.getElementById(presetId);
+  if(container) container.querySelectorAll(".cp").forEach(function(d){ d.classList.remove("sel"); });
+  dot.classList.add("sel");
+}
+
+function toast(msg,type){
+  type=type||"ok";
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.className="toast show "+type;
+  clearTimeout(el._t); el._t=setTimeout(function(){ el.classList.remove("show"); },4000);
+}
+
+function G(id){ const e=document.getElementById(id); return e?e.value:""; }
+function V(id,val){ const e=document.getElementById(id); if(e) e.value=val||""; }
+function S(id,val){ const e=document.getElementById(id); if(e) e.textContent=val; }
+function gColor(id){
+  const c=["#7c5cfc","#5865f2","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4"];
+  try{ return c[Number(BigInt(id)%BigInt(c.length))]; }catch{ return c[0]; }
+}
+
 </script>
-
 </body>
 </html>
